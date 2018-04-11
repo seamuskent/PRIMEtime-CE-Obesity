@@ -1,0 +1,21 @@
+Package: primetimeCE
+Type: Package
+Title: PRIMEtime-CE Obesity Model
+Version: 0.1
+Author: Seamus Kent
+Maintainer: Seamus Kent <seamus.kent@ndph.ox.ac.uk>
+Description: This model implements the PRIMEtime-CE model
+    for the evaluation of weight management programmes.
+License: N/A
+Encoding: UTF-8
+LazyData: true
+Imports:
+    ggplot2,
+    splitstackshape,
+    doParallel
+RoxygenNote: 6.0.1
+Depends:
+    dplyr,
+    tidyr,
+    stringr,
+    foreach

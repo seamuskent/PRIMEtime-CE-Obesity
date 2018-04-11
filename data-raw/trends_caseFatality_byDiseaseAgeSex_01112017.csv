@@ -1,0 +1,7 @@
+ageBand,sex,ihd,stroke,diabetes,cancerBreast,cancerColorectum,cancerLung,cancerStomach,cancerLiver,cancerKidney,cancerPancreas,cirrhosis
+"[0,35)",male,-0.014599481,-0.01689936,0,0,0,0,0,0,0,0,0
+"[35,65)",male,-0.018575026,-0.020111662,0,0,0,0,0,0,0,0,0
+"[65,Inf)",male,-0.018716208,-0.017679806,0,0,0,0,0,0,0,0,0
+"[0,35)",female,0,-0.020284043,0,0,0,0,0,0,0,0,0
+"[35,65)",female,-0.02304653,-0.020095407,0,0,0,0,0,0,0,0,0
+"[65,Inf)",female,-0.02578401,-0.020181458,0,0,0,0,0,0,0,0,0

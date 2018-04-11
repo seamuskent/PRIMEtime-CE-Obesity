@@ -1,0 +1,70 @@
+# Data file for generating data for primetimeCE package
+# last updated: 07.03.2018
+
+#clear workspace
+rm(list =ls())
+
+# Global settings ----
+options(stringsAsFactors = FALSE)
+
+# LOAD DATA ----
+Dir.path <- "J:/obesity_modelling/PRIME/primetime_pkg/primetimeCE/data-raw/"
+data.pop <- read.csv(paste0(Dir.path, "n_pop_by_age_1yr_31102017.csv"))
+data.mortalityRates <- read.csv(paste0(Dir.path, "totMortalityRate_byAgeSex_31102017.csv"))
+data.bmi <- read.csv(paste0(Dir.path, "bmi_byAgeSex_22122017.csv"))
+data.incidenceRates <- read.csv(paste0(Dir.path, "diseaseIncidenceRates_byAgeSex_31102017.csv"))
+data.caseFatality <- read.csv(paste0(Dir.path, "caseFatalityRates_byAgeSex_31102017.csv"))
+data.prevalence <- read.csv(paste0(Dir.path, "baselinePrevalence_byAgeSex_31102017.csv"))
+data.incidenceTrends <- read.csv(paste0(Dir.path, "trends_incidence_byDiseaseAgeSex_01112017.csv"))
+data.caseFatalityTrends <- read.csv(paste0(Dir.path, "trends_caseFatality_byDiseaseAgeSex_01112017.csv"))
+data.dalyWt <- read.csv(paste0(Dir.path, "dalyWeights_byAgeSexDisease_31102017.csv"))
+data.utilityDecs <- read.csv(paste0(Dir.path, "utilityDecrements_disease_01112017.csv"))
+data.costs.hc <- read.csv(paste0(Dir.path, "costs_disease_01112017.csv"))
+data.costs.hc.other <- read.csv(paste0(Dir.path, "costs_otherNonDisease_01112017.csv"))
+data.costs.formalCare <- read.csv(paste0(Dir.path, "societalcosts_ageSexDisease_02112017.csv"))
+data.rr <- read.csv(paste0(Dir.path, "relativeRisk_byAgeSex_06022018.csv"))
+data.utilityAge <- read.csv(paste0(Dir.path, "utilities_by_ageCat_02032018.csv"))
+disease.names <- c("ihd", "stroke", "diabetes", "cancerBreast", "cancerColorectum",
+                   "cancerLiver", "cancerKidney", "cancerPancreas")
+
+# DETERMINISTIC DATA ----
+
+# Data not requiring further amendments
+totMortalityRates <- data.mortalityRates
+
+# BMI data
+data.bmi <- data.bmi %>%
+  filter(age < 100) %>%
+  mutate(ageGrp = as.character(cut(age, breaks = seq(0, 100, 5), right = FALSE))) %>%
+  group_by(sex, ageGrp) %>%
+  summarise_at(c("mean", "sd", "height"), mean) %>%
+  ungroup()
+
+# Disease incidence, prev, & case-fatality
+baselineIncidenceRates <- f.convertClassEmptyDis(data.incidenceRates)
+baselineCaseFatality <- f.convertClassEmptyDis(data.caseFatality)
+baselinePrevalence <- f.convertClassEmptyDis(data.prevalence)
+
+# Incidence & case-fatality trends
+trendsIncidence <- select(data.pop, age, sex) %>%
+  mutate(ageBand = as.character(cut(age, breaks = c(0, 35, 65, Inf), right = FALSE))) %>%
+  left_join(., data.incidenceTrends, by = c("ageBand", "sex"))
+trendsCaseFatality <- select(data.pop, age, sex) %>%
+  mutate(ageBand = as.character(cut(age, breaks = c(0, 35, 65, Inf), right = FALSE))) %>%
+  left_join(., mutate(data.caseFatalityTrends,
+    diabetes = ihd),
+    by = c("ageBand", "sex"))
+
+# DALY weights
+dalyWeights <- data.dalyWt
+
+# SAVE AS R OBJECTS ----
+usethis::use_data_raw()
+usethis::use_data(data.pop, data.bmi,
+                  totMortalityRates, baselineIncidenceRates,
+                  baselineCaseFatality, baselinePrevalence, trendsIncidence,
+                  trendsCaseFatality, dalyWeights,
+                  data.costs.hc, data.costs.hc.other, data.costs.formalCare,
+                  data.rr, data.utilityAge, data.utilityDecs,
+                  disease.names,
+  overwrite = TRUE, internal = FALSE)
