@@ -89,11 +89,6 @@ primetime <- function(time.horizon = NULL,
     stop("You must specify demographic characteristics of the population.")
   }
 
-  # Information about selected model ----
-  if (deterministic){
-    print(paste0("You have chosen to model ", length(mean.wt.loss.yr1), " treatment(s)."))
-  }
-
   # DATA MANIPULATION ----
 
   # Data that is potentially probabilistic
