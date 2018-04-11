@@ -131,11 +131,6 @@ primetime <- function(time.horizon = NULL,
       # Initialise store of output for each type
       temp.list <- list()
 
-      #Processing indicator
-      if (deterministic){
-        print(paste0("Currently processing age group: ", age, " - ", age + 4, " years"))
-      }
-
       #Index age for estimation
       age.index <- age + 2
 
