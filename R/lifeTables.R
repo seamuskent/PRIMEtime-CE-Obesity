@@ -559,7 +559,7 @@ Calculate_diseaseData_targetedPop <- function(list.data = NULL,
       right = FALSE)
 
     # Highest bmi
-    bmi.max <- tail(df.est$bmi, 1)
+    max.bmi <- tail(df.est$bmi, 1)
 
     # Log mean and standard deviation
     bmi.log.sd <- sqrt(log(rrData$sd[g] ^ 2 + exp(2 * log(rrData$mean[g]))) -
@@ -567,7 +567,7 @@ Calculate_diseaseData_targetedPop <- function(list.data = NULL,
     bmi.log.mean <- log(rrData$mean[g]) - .5 * bmi.log.sd^2
 
     # Cumulative density
-    df.est$cumDens <- ifelse(df.est$bmi == bmi.max, 1,
+    df.est$cumDens <- ifelse(df.est$bmi == max.bmi, 1,
       plnorm(df.est$bmi, bmi.log.mean, bmi.log.sd))
 
     # Density & product of density & average BMI
