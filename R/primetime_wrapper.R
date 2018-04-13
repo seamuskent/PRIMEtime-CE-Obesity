@@ -106,7 +106,7 @@ primetime <- function(time.horizon = NULL,
   bc.wt.loss <- mean.wt.loss.yr1
 
   # Random treatment effect
-  id (!deterministic){
+  if (!deterministic){
     mean.wt.loss.yr1[2] <- mean.wt.loss.yr1[1] +
       rnorm(1, mean.wt.loss.yr1[2] - mean.wt.loss.yr1[1], se.diff)
   }
