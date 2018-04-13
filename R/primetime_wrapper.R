@@ -104,6 +104,9 @@ primetime <- function(time.horizon = NULL,
   # Repeat mean weight loss by arm
   bc.wt.loss <- mean.wt.loss.yr1
 
+  # Random treatment effect
+  mean.wt.loss.yr1[2] <- mean.wt.loss.yr1[2] + 2
+
   # POTENTIAL IMPACT FRACTIONS ----
 
   pif.list <- list()
