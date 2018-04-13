@@ -101,6 +101,8 @@ primetime <- function(time.horizon = NULL,
   # Minimum risk BMI
   bmi.min.risk <- 21
 
+  # Repeat mean weight loss by arm
+  bc.wt.loss <- mean.wt.loss.yr1
 
   # POTENTIAL IMPACT FRACTIONS ----
 
@@ -270,7 +272,7 @@ primetime <- function(time.horizon = NULL,
           dr.costs = discount.rate.cost,
           timeH = time.horizon,
           cost.trt = cost.of.treatment[n],
-          wt.loss.yr1 = mean.wt.loss.yr1[n],
+          wt.loss.yr1 = bc.wt.loss[n],
           yrs.to.regain = time.to.weight.regain,
           wt.mntnd = if (some.wt.loss.maintained) mean.wt.loss.maintained[n] else NULL,
           bmi.direct = bmi.directEffect.onQoL,
