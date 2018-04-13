@@ -22,6 +22,7 @@ primetime <- function(time.horizon = NULL,
                       bmi.target.min = NULL,
                       bmi.target.max = NULL,
                       mean.wt.loss.yr1 = NULL,
+                      se.diff = NULL,
                       time.to.trt.effect = NULL,
                       time.to.weight.regain = NULL,
                       some.wt.loss.maintained = FALSE,
@@ -104,6 +105,11 @@ primetime <- function(time.horizon = NULL,
   # Repeat mean weight loss by arm
   bc.wt.loss <- mean.wt.loss.yr1
 
+  # Random treatment effect
+  if (!deterministic){
+    mean.wt.loss.yr1[2] <- mean.wt.loss.yr1[1] +
+      rnorm(1, mean.wt.loss.yr1[2] - mean.wt.loss.yr1[1], se.diff)
+  }
   # POTENTIAL IMPACT FRACTIONS ----
 
   pif.list <- list()
