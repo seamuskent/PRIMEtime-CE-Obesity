@@ -276,7 +276,7 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-          if (!(s == "All" & a != "All") & !(s != "All" & a == "All")){
+          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[c(-1,-5)]){
