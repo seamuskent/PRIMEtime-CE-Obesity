@@ -89,6 +89,12 @@ primetime <- function(time.horizon = NULL,
   if (!whole.uk.population & is.null(population.characteristics)){
     stop("You must specify demographic characteristics of the population.")
   }
+  
+  # non-negative discount rates
+  if (discount.rate.health < 0 | discount.rate.cost < 0){
+    stop("Discount rates must be non-negative.")
+  }
+  
 
   # DATA MANIPULATION ----
 
