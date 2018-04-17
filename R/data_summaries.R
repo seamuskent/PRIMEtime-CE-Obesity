@@ -7,8 +7,9 @@ summary_table <- function(
   active.intervention = "trt1",
   extended.summary = FALSE,
   timeH = NULL,
-  costs.to.include = "disease-related nhs costs",
-  present.only.overall.results = FALSE){ #other options: "unrelated nhs costs", "disease-related nhs and social care", "all nhs and social care"
+  costs.to.include = "disease-related nhs costs",#other options: "unrelated nhs costs", "disease-related nhs and social care", "all nhs and social care"
+  present.only.overall.results = FALSE,
+  nicely.presented.results = TRUE){ 
 
   # Check that interventions to assess exist
   if (!exists(comparator, where = model.results)){
@@ -223,12 +224,14 @@ summary_table <- function(
             # calculate ICER
             out[out$outcome == "ICER", 4] <- out[3, 4] / out[2, 4]
 
-            # clean up data
-#            out[1:2, 2:3] <- round(out[1:2, 2:3], 2)
-#            out[1:2, 4] <- round(out[1:2, 4], 3)
-#            out[3, 2:3] <- round(out[3, 2:3])
-#            out[3, 4] <- round(out[3, 4])
-#            out[4, 4] <- round(out[4, 4])
+            # Present data presentation format
+            if (nicely.presented.results){
+              out.tidy <- out
+              out.tidy[1:2, 2:3] <- format(round(out[1:2, 2:3], 2), nsmall = 2)
+              out.tidy[1:2, 4] <- format(round(out[1:2, 4], 3), nsmall = 3)
+              out.tidy[3:4, 2:4] <- format(round(out[3:4, 2:4], 0), big.mark = ",")
+              out <- out.tidy
+            }
 
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
@@ -290,16 +293,19 @@ summary_table <- function(
             # calculate ICER
             out[out$outcome == "ICER", 4] <- out[out$outcome == "cost.total", 4] / out[out$outcome == "Lux", 4]
 
-            # clean up data
-            results.table <- out.template
-            results.table[out$cat=="health", 2:4] <- round(out[out$cat=="health", 2:4], 3)
-            results.table[out$cat=="cost", 2:4] <- round(out[out$cat=="cost", 2:4])
-            results.table[out$cat=="ix", 2:4] <- round(out[out$cat=="ix", 2:4] * 10^5)
-            results.table[out$cat=="icer", 4] <- round(out[out$cat=="icer", 4])
-            results.table$cat <- NULL
-
+            # Present data presentation format
+            if (nicely.presented.results){
+              out.tidy <- out
+              out.tidy[out$cat=="health", 2:3] <- format(round(out[out$cat=="health", 2:3], 2), nsmall = 2)
+              out.tidy[out$cat=="health", 4] <- format(round(out[out$cat=="health", 4], 3), nsmall = 3)
+              out.tidy[out$cat %in% c("cost", "icer"), 2:4] <- format(round(out[out$cat %in% c("cost", "icer"), 2:4]), big.mark = ",")
+              out.tidy[out$cat=="ix", 2:4] <- format(round(out[out$cat=="ix", 2:4] * 10^5), big.mark = ",")
+              out <- out.tidy
+              out$cat <- NULL
+            }
+            
             # store results in list
-            out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out #results.table
+            out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
 
           }
         }
