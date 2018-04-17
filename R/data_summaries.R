@@ -5,7 +5,6 @@ summary_table <- function(
   model.results = NULL,
   comparator = "control",
   active.intervention = "trt1",
-  produce.results.table = TRUE,
   extended.summary = FALSE,
   timeH = NULL,
   costs.to.include = "disease-related nhs costs",
@@ -185,7 +184,6 @@ summary_table <- function(
   }
 
   # Create summary table ----
-  if (produce.results.table){
 
     # Simple summary...
     if (!extended.summary){
@@ -307,11 +305,10 @@ summary_table <- function(
         }
       }
     }
-  }
 
   # Data to return ----
   if (present.only.overall.results) out.list <- out.list[[1]]
-  if (produce.results.table) out.list else results
+  out.list
 }
 
 
@@ -323,7 +320,6 @@ summary_psa <- function(model = NULL, psa.out = NULL){
     model.results = model,
     comparator = "trt1",
     active.intervention = "trt2",
-    produce.results.table = TRUE,
     extended.summary = TRUE)
 
   # For each group calculate standard deviation of probabilistic means ----
