@@ -95,7 +95,13 @@ primetime <- function(time.horizon = NULL,
     stop("Discount rates must be non-negative.")
   }
   
-
+  # population characteristics
+  if (!whole.uk.population & length(population.characteristics) != 5){
+    stop("population.characteristics must be a numeric vector with length 5, containing 
+the following information in order: proportion of men, mean age in men, standard deviation 
+of age in men, mean age in women, standard deviation of age in women.")
+  }
+ 
   # DATA MANIPULATION ----
 
   # Data that is potentially probabilistic
