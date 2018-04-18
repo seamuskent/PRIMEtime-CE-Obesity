@@ -6,7 +6,7 @@
 \usage{
 primetime(time.horizon = NULL, age.range = c(20, 100),
   cost.of.treatment = NULL, bmi.target.min = NULL, bmi.target.max = NULL,
-  mean.wt.loss.yr1 = NULL, time.to.trt.effect = NULL,
+  mean.wt.loss.yr1 = NULL, se.diff = NULL, time.to.trt.effect = NULL,
   time.to.weight.regain = NULL, some.wt.loss.maintained = FALSE,
   mean.wt.loss.maintained = NULL, discount.rate.health = NULL,
   discount.rate.cost = NULL, deterministic = TRUE,
