@@ -336,7 +336,7 @@ summary_table <- function(
 
 
 
-#' @describeIn summary_table Summarise PSA results
+#' @rdname summary_table 
 summary_psa <- function(model = NULL, psa.out = NULL){
 
   # Generate summary for deterministic results
