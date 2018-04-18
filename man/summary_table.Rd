@@ -32,16 +32,11 @@ summary_psa(model = NULL, psa.out = NULL)
 \item{psa.out}{The results returned from running \code{primetime_psa}. This analysis should match that used to generate \code{model.out}.}
 }
 \value{
-Presents mean life-years, quality-adjusted life-years, total costs, and costs by type for two interventions, and the differences in these outcomes between interventions, as well as the incremental cost-effectiveness ratio (ICER).
+Presents mean life-years, quality-adjusted life-years, total costs, and costs by type for two interventions, and the differences in these outcomes between interventions, as well as the incremental cost-effectiveness ratio (ICER). For the PSA summaries, standard errors around differences are reported. 95% confidence intervals are formed assuming the mean differences follow normal distributions.
 }
 \description{
-\code{summary_table} Summarises the results from the PRIMEtime model.
+\code{summary_table} Summarises the results from the PRIMEtime model. \code{summary_psa} summarises the results adding standard errors and 95% confidence intervals to estimated differences.
 }
-\section{Functions}{
-\itemize{
-\item \code{summary_psa}: Summarise PSA results
-}}
-
 \examples{
 summary_table(model.results = primetime.results, comparator = "trt1", active.intervention = "trt2",
 nicely.presented.results = TRUE)
