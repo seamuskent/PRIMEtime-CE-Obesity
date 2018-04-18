@@ -23,8 +23,8 @@ primetime_psa <- function(n = 1000, model = NULL){
         model.results = tempModel,
         comparator = "trt1",
         active.intervention = "trt2",
-        produce.results.table = TRUE,
-        extended.summary = TRUE
+        extended.summary = TRUE,
+        nicely.presented.results = FALSE
       )
 
       # Define output to save
