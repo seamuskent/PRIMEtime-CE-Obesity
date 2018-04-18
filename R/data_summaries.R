@@ -11,6 +11,7 @@
 #' @param costs.to.include Which cost types to include and to make up total costs. Following guidelines for health technology appraisal from the National Institute for Health and Care Excellence, the default is to inlcude only NHS relating to the modelled diseases, i.e. "disease-related nhs costs". Alternatively, total costs can additionally include unrelated nhs costs - "unrelated nhs costs" -, disease-related nhs and formal care costs - "disease-related nhs and social care" -, or all nhs and formal care, related and unrelated to the modelled conditions - "all nhs and social care". 
 #' @param present.only.overall.results Whether to present results averaged over all age and sex groups or by sex and age in 15-year bands (default).
 #' @param nicely.presented.results Whether to present results nicely formatted for presentation (default) or not. If the results are to be used for further calculations or to create graphs, then select FALSE.
+#' @param psa.out The results returned from running \code{primetime_psa}. This analysis should match that used to generate \code{model.out}.
 #' @return Presents mean life-years, quality-adjusted life-years, total costs, and costs by type for two interventions, and the differences in these outcomes between interventions, as well as the incremental cost-effectiveness ratio (ICER).
 #' @examples
 #' summary_table(model.results = primetime.results, comparator = "trt1", active.intervention = "trt2",
@@ -334,7 +335,8 @@ summary_table <- function(
 }
 
 
-# Summary including PSA ----
+
+#' @describeIn summary_table Summarise PSA results
 summary_psa <- function(model = NULL, psa.out = NULL){
 
   # Generate summary for deterministic results
@@ -342,7 +344,8 @@ summary_psa <- function(model = NULL, psa.out = NULL){
     model.results = model,
     comparator = "trt1",
     active.intervention = "trt2",
-    extended.summary = TRUE)
+    extended.summary = TRUE,
+    nicely.presented.results = FALSE)
 
   # For each group calculate standard deviation of probabilistic means ----
 
