@@ -4,6 +4,7 @@
 #'
 #'
 #' @inheritParams summary_table
+#' @return Returns the same output as \code{primetime} but for each Monte Carlo simulation. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
 #' @examples
 #' primetime_psa(n = 1000, model = primetime.results)
 #' @export

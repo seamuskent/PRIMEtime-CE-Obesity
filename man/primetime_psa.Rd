@@ -12,6 +12,9 @@ primetime_psa(n = 1000, model.results = NULL,
 
 \item{costs.to.include}{Which cost types to include and to make up total costs. Following guidelines for health technology appraisal from the National Institute for Health and Care Excellence, the default is to inlcude only NHS relating to the modelled diseases, i.e. "disease-related nhs costs". Alternatively, total costs can additionally include unrelated nhs costs - "unrelated nhs costs" -, disease-related nhs and formal care costs - "disease-related nhs and social care" -, or all nhs and formal care, related and unrelated to the modelled conditions - "all nhs and social care".}
 }
+\value{
+Returns the same output as \code{primetime} but for each Monte Carlo simulation. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
+}
 \description{
 \code{primetime_psa} Estimates the PRIMEtime model \emph{n} times representing the uncertainty in selected input parameters using Monte Carlo Simulation.
 }
