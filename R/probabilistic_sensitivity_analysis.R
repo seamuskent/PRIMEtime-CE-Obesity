@@ -1,9 +1,17 @@
+#' Probabilisitic sensitivity analysis
+#'
+#' \code{primetime_psa} Estimates the PRIMEtime model \emph{n} times representing the uncertainty in selected input parameters using Monte Carlo Simulation.
+#'
+#'
+#' @inheritParams summary_table
+#' @examples
+#' primetime_psa(n = 1000, model = primetime.results)
+#' @export
 
-
-primetime_psa <- function(n = 1000, model = NULL){
+primetime_psa <- function(n = 1000, model.results = NULL, costs.to.include = "disease-related nhs costs"){
 
   # Extract arguments from model
-  inputs <- model$arguments
+  inputs <- model.results$arguments
 
   # change from determinstic to probabilsitic
   inputs$deterministic <- FALSE
@@ -24,7 +32,8 @@ primetime_psa <- function(n = 1000, model = NULL){
         comparator = "trt1",
         active.intervention = "trt2",
         nicely.presented.results = FALSE,
-        extended.summary = TRUE
+        extended.summary = TRUE,
+        costs.to.include = costs.to.include
       )
 
       # Define output to save
