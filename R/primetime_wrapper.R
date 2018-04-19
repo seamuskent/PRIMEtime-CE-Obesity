@@ -16,7 +16,6 @@
 #' @return Mean per-person health and economic outcomes in groups defined by sex and age (in 5-year bands) for each year of analysis, for the control and treatment groups, and differences between treatment and control groups. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
 #' @examples
 #' primetime(time.horizon = 20, age.range = c(20, 30), bmi.target.min = 30, bmi.target.max = 50, mean.wt.loss.yr1 = 4, time.to.trt.effect = 1, time.to.weight.regain = 5, some.wt.loss.maintained = FALSE, mean.wt.loss.maintained = 0, bmi.min.risk = 21, discount.rate.health = 3.5, discount.rate.cost = 3.5, deterministic = TRUE)
-
 #' @export
 primetime <- function(time.horizon = NULL,
   age.range = c(20, 100),
