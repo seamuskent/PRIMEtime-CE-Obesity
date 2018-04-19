@@ -16,6 +16,7 @@
 #' @examples
 #' summary_table(model.results = primetime.results, comparator = "trt1", active.intervention = "trt2",
 #' nicely.presented.results = TRUE)
+#' @export
 
 # Create overall summary table ----
 summary_table <- function(
