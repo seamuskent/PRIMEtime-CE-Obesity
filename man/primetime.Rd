@@ -37,7 +37,9 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
 
 \item{mean.wt.loss.maintained}{A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms. Only required in \emph{some.wt.loss.maintained = TRUE}.}
 
-\item{discount.rate.health, discount.rate.cost}{Non-negative values giving the annual discount rate. A value of 3.5 means a discount rate of 3.5%.}
+\item{discount.rate.health}{Non-negative value giving the annual discount rate for health benefits. A value of 3.5 means a discount rate of 3.5%.}
+
+\item{discount.rate.cost}{Annual discount rate for costs.}
 
 \item{deterministic}{Whether to run a deterministic (default) or probabilistic analysis.}
 

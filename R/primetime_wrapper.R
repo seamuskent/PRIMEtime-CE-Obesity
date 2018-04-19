@@ -14,7 +14,8 @@
 #' @param time.to.weight.regain A positive integer giving the years till weight returns to baseline, or in the case of some long-term residual weight difference, the time till the weight difference stabilises.
 #' @param some.wt.loss.maintained A logical value indicating whether there is some residual weight difference between treatment and the control groups after weight regain.
 #' @param mean.wt.loss.maintained A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms. Only required in \emph{some.wt.loss.maintained = TRUE}.
-#' @param discount.rate.health,discount.rate.cost Non-negative values giving the annual discount rate. A value of 3.5 means a discount rate of 3.5%. 
+#' @param discount.rate.health Non-negative value giving the annual discount rate for health benefits. A value of 3.5 means a discount rate of 3.5%.
+#' @param discount.rate.cost Annual discount rate for costs.  
 #' @param deterministic Whether to run a deterministic (default) or probabilistic analysis.
 #' @param whole.uk.population Whether to model outcomes over the whole UK population of selected age (default) or a user-specified population.
 #' @param population.characeristics A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}. 
