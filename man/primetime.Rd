@@ -23,9 +23,11 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
 
 \item{bmi.target.min}{A positive integer giving the lowest BMI group at whom the intervention(s) is targeted.}
 
-\item{bmi.target.max}{A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of Inf means no upper bound.}
+\item{bmi.target.max}{A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of \emph{Inf} means no upper bound.}
 
 \item{mean.wt.loss.yr1}{A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms 1-year following intervention.}
+
+\item{se.diff}{A non-negative integer giving the standard error of the difference in effect between two treatment options. Only required if \emph{deterministic = FALSE}.}
 
 \item{time.to.trt.effect}{A non-negative integer giving the delay between initiation of treatment and health effects.}
 
@@ -33,7 +35,15 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
 
 \item{some.wt.loss.maintained}{A logical value indicating whether there is some residual weight difference between treatment and the control groups after weight regain.}
 
-\item{mean.wt.loss.maintained}{A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms.}
+\item{mean.wt.loss.maintained}{A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms. Only required in \emph{some.wt.loss.maintained = TRUE}.}
+
+\item{discount.rate.health, discount.rate.cost}{Non-negative values giving the annual discount rate. A value of 3.5 means a discount rate of 3.5%.}
+
+\item{deterministic}{Whether to run a deterministic (default) or probabilistic analysis.}
+
+\item{whole.uk.population}{Whether to model outcomes over the whole UK population of selected age (default) or a user-specified population.}
+
+\item{population.characeristics}{A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}.}
 }
 \value{
 Mean per-person health and economic outcomes in groups defined by sex and age (in 5-year bands) for each year of analysis, for the control and treatment groups, and differences between treatment and control groups. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.

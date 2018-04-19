@@ -6,13 +6,18 @@
 #' @param time.horizon A positive integer. Outcomes are estimated up to age 100 years.
 #' @param age.range A two element numeric vector giving the lowest and highest ages over which to estimate outcomes.
 #' @param bmi.target.min A positive integer giving the lowest BMI group at whom the intervention(s) is targeted.
-#' @param bmi.target.max A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of Inf means no upper bound.
+#' @param bmi.target.max A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of \emph{Inf} means no upper bound.
 #' @param cost.of.treatment A numeric vector with length equal to the number of active interventions giving intervention costs in year 1. 
 #' @param mean.wt.loss.yr1 A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms 1-year following intervention.
+#' @param se.diff A non-negative integer giving the standard error of the difference in effect between two treatment options. Only required if \emph{deterministic = FALSE}.
 #' @param time.to.trt.effect A non-negative integer giving the delay between initiation of treatment and health effects.
 #' @param time.to.weight.regain A positive integer giving the years till weight returns to baseline, or in the case of some long-term residual weight difference, the time till the weight difference stabilises.
 #' @param some.wt.loss.maintained A logical value indicating whether there is some residual weight difference between treatment and the control groups after weight regain.
-#' @param mean.wt.loss.maintained A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms.
+#' @param mean.wt.loss.maintained A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms. Only required in \emph{some.wt.loss.maintained = TRUE}.
+#' @param discount.rate.health,discount.rate.cost Non-negative values giving the annual discount rate. A value of 3.5 means a discount rate of 3.5%. 
+#' @param deterministic Whether to run a deterministic (default) or probabilistic analysis.
+#' @param whole.uk.population Whether to model outcomes over the whole UK population of selected age (default) or a user-specified population.
+#' @param population.characeristics A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}. 
 #' @return Mean per-person health and economic outcomes in groups defined by sex and age (in 5-year bands) for each year of analysis, for the control and treatment groups, and differences between treatment and control groups. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
 #' @examples
 #' primetime(time.horizon = 20, age.range = c(20, 30), bmi.target.min = 30, bmi.target.max = 50, mean.wt.loss.yr1 = 4, time.to.trt.effect = 1, time.to.weight.regain = 5, some.wt.loss.maintained = FALSE, mean.wt.loss.maintained = 0, bmi.min.risk = 21, discount.rate.health = 3.5, discount.rate.cost = 3.5, deterministic = TRUE)
