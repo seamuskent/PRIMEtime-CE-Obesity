@@ -108,6 +108,11 @@ the following information in order: proportion of men, mean age in men, standard
 of age in men, mean age in women, standard deviation of age in women.")
   }
  
+  # Standard errror of treatment effect
+  if (!deterministic & (is.null(se.diff) | se.diff < 0)){
+    stop("Please specifiy a non-negative numeric value for SE of the treatment effect. if you do not wish to model uncertainty in the treatment effect, please specify as 0.")
+  }
+  
   # DATA MANIPULATION ----
 
   # Data that is potentially probabilistic
@@ -125,9 +130,14 @@ of age in men, mean age in women, standard deviation of age in women.")
 
   # Random treatment effect
   if (!deterministic){
+    if (length(mean.wt.loss.yr1) == 1){
+      mean.wt.loss.yr1 <- rnorm(1, mean.wt.loss.yr1, se.diff)
+    } else {
     mean.wt.loss.yr1[2] <- mean.wt.loss.yr1[1] +
       rnorm(1, mean.wt.loss.yr1[2] - mean.wt.loss.yr1[1], se.diff)
+    }
   }
+  
   # POTENTIAL IMPACT FRACTIONS ----
 
   pif.list <- list()
