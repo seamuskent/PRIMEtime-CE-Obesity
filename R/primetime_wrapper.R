@@ -20,7 +20,7 @@
 #' @param population.characeristics A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}. 
 #' @return Mean per-person health and economic outcomes in groups defined by sex and age (in 5-year bands) for each year of analysis, for the control and treatment groups, and differences between treatment and control groups. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
 #' @examples
-#' primetime(time.horizon = 20, age.range = c(20, 30), bmi.target.min = 30, bmi.target.max = 50, mean.wt.loss.yr1 = 4, time.to.trt.effect = 1, time.to.weight.regain = 5, some.wt.loss.maintained = FALSE, mean.wt.loss.maintained = 0, bmi.min.risk = 21, discount.rate.health = 3.5, discount.rate.cost = 3.5, deterministic = TRUE)
+#' primetime(time.horizon = 25,age.range = c(20, 80),cost.of.treatment = c(34.06, 1001.58),bmi.target.min = 30, bmi.target.max = 60,mean.wt.loss.yr1 = c(3.1, 10.3),time.to.trt.effect = 1,time.to.weight.regain = 5,some.wt.loss.maintained = FALSE,mean.wt.loss.maintained = NULL,discount.rate.health = 3.5,discount.rate.cost = 3.5,whole.uk.population = TRUE)
 #' @export
 primetime <- function(time.horizon = NULL,
   age.range = c(20, 100),
