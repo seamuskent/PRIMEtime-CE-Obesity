@@ -17,6 +17,7 @@
 #' @examples
 #' primetime(time.horizon = 20, age.range = c(20, 30), bmi.target.min = 30, bmi.target.max = 50, mean.wt.loss.yr1 = 4, time.to.trt.effect = 1, time.to.weight.regain = 5, some.wt.loss.maintained = FALSE, mean.wt.loss.maintained = 0, bmi.min.risk = 21, discount.rate.health = 3.5, discount.rate.cost = 3.5, deterministic = TRUE)
 
+#' @export
 primetime <- function(time.horizon = NULL,
   age.range = c(20, 100),
                       cost.of.treatment = NULL,
