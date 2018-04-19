@@ -7,6 +7,7 @@
 #' @param age.range A two element numeric vector giving the lowest and highest ages over which to estimate outcomes.
 #' @param bmi.target.min A positive integer giving the lowest BMI group at whom the intervention(s) is targeted.
 #' @param bmi.target.max A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of Inf means no upper bound.
+#' @param cost.of.treatment A numeric vector with length equal to the number of active interventions giving intervention costs in year 1. 
 #' @param mean.wt.loss.yr1 A numeric vector with length equal to the number of active interventions to assess. Values are mean weight loss in kilograms 1-year following intervention.
 #' @param time.to.trt.effect A non-negative integer giving the delay between initiation of treatment and health effects.
 #' @param time.to.weight.regain A positive integer giving the years till weight returns to baseline, or in the case of some long-term residual weight difference, the time till the weight difference stabilises.

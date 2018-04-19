@@ -19,6 +19,8 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
 
 \item{age.range}{A two element numeric vector giving the lowest and highest ages over which to estimate outcomes.}
 
+\item{cost.of.treatment}{A numeric vector with length equal to the number of active interventions giving intervention costs in year 1.}
+
 \item{bmi.target.min}{A positive integer giving the lowest BMI group at whom the intervention(s) is targeted.}
 
 \item{bmi.target.max}{A positive integer giving the highest BMI group at whom the intervention(s) is targeted. A value of Inf means no upper bound.}
