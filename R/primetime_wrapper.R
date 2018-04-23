@@ -151,7 +151,8 @@ of age in men, mean age in women, standard deviation of age in women.")
       wt.loss.yr1 = mean.wt.loss.yr1[n],
       bmi.min = bmi.target.min,
       bmi.max = bmi.target.max,
-      bmi.min.risk = bmi.min.risk)
+      bmi.min.risk = bmi.min.risk,
+      min.age = age.range[1])
   }
 
   # ESTIMATION BY AGE GROUP ----
@@ -186,7 +187,8 @@ of age in men, mean age in women, standard deviation of age in women.")
       diseaseData.targetedPop <- Calculate_diseaseData_targetedPop(list.data = primetime.data,
         bmi.max = bmi.target.max,
         bmi.min = bmi.target.min,
-        bmi.minRisk = bmi.min.risk)
+        bmi.minRisk = bmi.min.risk,
+        age.min = age.range[1])
 
       # Standard life-table
       lifeTable <- Produce_lifetable(dataT = dataTemplate,
