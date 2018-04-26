@@ -174,7 +174,7 @@ of age in men, mean age in women, standard deviation of age in women.")
       # Create data template for lifetables for age group
       dataTemplate <- data.pop %>%
         select(age, sex) %>%
-        left_join(., totMortalityRates, by = c("age", "sex")) %>%
+        left_join(., primetime.data$totMortalityRates, by = c("age", "sex")) %>%
         filter(age >= age.index) %>%
         mutate(ageGrp = as.character(cut(age, breaks = seq(20, 100, 5), right = FALSE))) %>%
         group_by(sex) %>%
@@ -198,13 +198,14 @@ of age in men, mean age in women, standard deviation of age in women.")
 
       # Disease life-tables
       disease.lifetables.targeted <- list()
-      for (d in disease.names){
+      for (d in primetime.data$disease.names){
         disease.lifetables.targeted[[d]] <- Produce_disease_lifetable(dataT = dataTemplate,
           disease = d,
           timeH = time.horizon,
           targeted.pop.analysis = TRUE,
           targeted.pop.data = diseaseData.targetedPop,
-          trends = model.incidence.trends)
+          trends = model.incidence.trends,
+          list.data = primetime.data)
       }
 
       # Estimate costs for each disease

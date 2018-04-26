@@ -92,8 +92,12 @@ Produce_disease_lifetable <- function(dataT = NULL,
   second.trt = NULL,
   targeted.pop.analysis = FALSE,
   targeted.pop.data = NULL,
-  trends = NULL){
+  trends = NULL,
+  list.data = NULL){
 
+  # load primetime data into environment
+  list2env(list.data, envir = environment())
+  
   # Select appropriate incidence & prevalence data
   if (targeted.pop.analysis){
     incidenceData <- targeted.pop.data[["targetedRates"]]
@@ -211,7 +215,6 @@ Produce_disease_lifetable <- function(dataT = NULL,
   lifeTable
 
 }
-
 
 # Estimate disease costs  ----
 Estimate_disease_costs <- function(intervention = FALSE,
