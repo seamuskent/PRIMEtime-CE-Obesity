@@ -136,7 +136,11 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
       utility = ifelse(sex == "male", utility + uDec.male, utility),
       utility = ifelse(utility > 1, 1, utility))
 
+<<<<<<< HEAD
   # remove unnecesary ages
+=======
+  # remove unneeded ages
+>>>>>>> ed5ef900ce7c21a71ecac2be198277b124842a91
   baselineQol <- baselineQol %>%
     filter(age >= min(baselinePrevalence$age))
   
