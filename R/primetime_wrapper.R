@@ -120,7 +120,7 @@ of age in men, mean age in women, standard deviation of age in women.")
 
   # Generate proportion individuals targeted by age and sex group
   pop.data <- Define_targeted_population(min.bmi = bmi.target.min,
-    max.bmi = bmi.target.max)
+    max.bmi = bmi.target.max, data.list = primetime.data)
 
   # Minimum risk BMI
   bmi.min.risk <- 21

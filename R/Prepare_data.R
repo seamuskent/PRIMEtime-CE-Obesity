@@ -185,11 +185,11 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
 
 # Function for creating new population distribution
 # based on selected population characteristics
-Define_targeted_population <- function(min.bmi = NULL, max.bmi = NULL){
+Define_targeted_population <- function(min.bmi = NULL, max.bmi = NULL, data.list = NULL){
 
   # Counts by sex and age (in 5-year bands)
   data.pop <- data.pop %>%
-    filter(age >= min(baselineIncidenceRates$age)) %>%
+    filter(age >= min(data.list$baselineIncidenceRates$age)) %>%
     mutate(ageGrp = as.character(cut(age, seq(0, 100, 5), right = FALSE)),
       ageGrp = ifelse(age==100, "[95,100)", ageGrp)) %>%
     group_by(sex, ageGrp) %>%
@@ -197,7 +197,7 @@ Define_targeted_population <- function(min.bmi = NULL, max.bmi = NULL){
               ageMedian = floor(median(age)))
 
   # Proportion of population in defined BMI range
-  data.pop <- left_join(data.pop, data.bmi, by = c("sex", "ageGrp")) %>%
+  data.pop <- left_join(data.pop, data.list$bmiData, by = c("sex", "ageGrp")) %>%
       mutate(ln.sd = sqrt(log(sd*sd + exp(2 * log(mean))) - 2 * log(mean)),
              ln.mean = log(mean) - .5 * ln.sd^2,
              propTarget = plnorm(max.bmi, ln.mean, ln.sd) - plnorm(min.bmi, ln.mean, ln.sd))
