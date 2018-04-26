@@ -40,7 +40,8 @@ primetime <- function(time.horizon = NULL,
                       bmi.directEffect.onQoL = FALSE,
                       model.incidence.trends = TRUE,
                       whole.uk.population = TRUE,
-                      population.characteristics = NULL) {
+                      population.characteristics = NULL,
+                      subgroup = "All adults") {
 
   # Extract arguments - called and default ----
   arguments <- mget(names(formals()),sys.frame(sys.nframe()))
@@ -116,7 +117,7 @@ of age in men, mean age in women, standard deviation of age in women.")
   # DATA MANIPULATION ----
 
   # Data that is potentially probabilistic
-  primetime.data <- Manipulate_data(psa = !deterministic)
+  primetime.data <- Manipulate_data(psa = !deterministic, diab.sg = subgroup)
 
   # Generate proportion individuals targeted by age and sex group
   pop.data <- Define_targeted_population(min.bmi = bmi.target.min,

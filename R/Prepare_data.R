@@ -1,7 +1,7 @@
 
 #Function to prepare data for PRIMEtime model.
 # As default, does for deterministic analysis; but can also do PSA.
-Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
+Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE, diab.sg = NULL){
 
   # Set up output list ----
   data.list <- list()
@@ -41,7 +41,18 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
   } else data.list$costs.formalCare <- data.costs.formalCare
 
   # BMI DATA ----
-  data.list$bmiData <- data.bmi
+  
+  data.list$bmiData <- if (diab.sg == "All adults"){
+    data.bmi
+  } else if (diab.sg == "Diabetics"){
+    data.bmi.byDiab %>%
+      filter(diabetes == TRUE) %>%
+      select(-diabetes)
+  } else {
+    data.bmi.byDiab %>%
+      filter(diabetes == FALSE) %>%
+      select(-diabetes)
+  }
   
   # RELATIVE RISK DATA ----
 
@@ -98,9 +109,32 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
   # BASELINE DISEASE RATES ----
   
   # Affected by diabetes status
-  data.list$baselineIncidenceRates <- data.incidenceRates
-  data.list$baselinePrevalence  <- data.prevalence
-  data.list$totMortalityRates <- data.mortalityRates
+  
+  if (diab.sg == "All adults"){
+    data.list$baselineIncidenceRates <- data.incidenceRates
+    data.list$baselinePrevalence  <- data.prevalence
+    data.list$totMortalityRates <- data.mortalityRates
+  } else if (diab.sg == "Diabetics"){
+    data.list$baselineIncidenceRates <- data.incidenceRates.byDiab %>%
+      filter(has.diabetes == TRUE) %>%
+      select(-has.diabetes)
+    data.list$baselinePrevalence  <- data.prevalence.byDiab %>%
+      filter(has.diabetes == TRUE) %>%
+      select(-has.diabetes)
+    data.list$totMortalityRates <- data.mortalityRates.byDiab %>%
+      filter(has.diabetes == TRUE) %>%
+      select(-has.diabetes)
+  } else {
+    data.list$baselineIncidenceRates <- data.incidenceRates.byDiab %>%
+      filter(has.diabetes == FALSE) %>%
+      select(-has.diabetes)
+    data.list$baselinePrevalence  <- data.prevalence.byDiab %>%
+      filter(has.diabetes == FALSE) %>%
+      select(-has.diabetes)
+    data.list$totMortalityRates <- data.mortalityRates.byDiab %>%
+      filter(has.diabetes == FALSE) %>%
+      select(-has.diabetes)
+  }
   
   # unaffected by diabetes status
   data.list$baselineCaseFatality <- data.caseFatality
