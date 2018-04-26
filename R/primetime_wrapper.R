@@ -209,7 +209,7 @@ of age in men, mean age in women, standard deviation of age in women.")
       }
 
       # Estimate costs for each disease
-      for (d in disease.names){
+      for (d in primetime.data$disease.names){
         disease.lifetables.targeted[[d]] <- Estimate_disease_costs(disease = d,
           lifeTab = lifeTable,
           disease.lifeTabs = disease.lifetables.targeted,
@@ -237,15 +237,16 @@ of age in men, mean age in women, standard deviation of age in women.")
 
       # Disease life-tables
       disease.lifetables.control <- list()
-      for (d in disease.names){
+      for (d in primetime.data$disease.names){
         disease.lifetables.control[[d]] <- Produce_disease_lifetable(dataT = dataTemplate,
           disease = d,
           timeH = time.horizon,
-          trends = model.incidence.trends)
+          trends = model.incidence.trends,
+          list.data = primetime.data)
       }
 
       # Estimate costs for each disease
-      for (d in disease.names){
+      for (d in primetime.data$disease.names){
         disease.lifetables.control[[d]] <- Estimate_disease_costs(disease = d,
           lifeTab = lifeTable,
           disease.lifeTabs = disease.lifetables.control,
@@ -272,13 +273,14 @@ of age in men, mean age in women, standard deviation of age in women.")
 
         # Disease life-tables
         disease.lifetables.trt <- list()
-        for (d in disease.names){
+        for (d in primetime.data$disease.names){
           disease.lifetables.trt[[d]] <- Produce_disease_lifetable(dataT = dataTemplate,
             disease = d,
             intervention = TRUE,
             pifs = pif.list[[n]],
             timeH = time.horizon,
-            trends = model.incidence.trends)
+            trends = model.incidence.trends,
+            list.data = primetime.data)
         }
 
         # Standard life-table
@@ -291,7 +293,7 @@ of age in men, mean age in women, standard deviation of age in women.")
           bmi.direct = bmi.directEffect.onMortality)
 
         # Estimate costs for each disease
-        for (d in disease.names){
+        for (d in primetime.data$disease.names){
           disease.lifetables.trt[[d]] <- Estimate_disease_costs(disease = d,
             lifeTab = lifeTable2,
             disease.lifeTabs = disease.lifetables.trt,
