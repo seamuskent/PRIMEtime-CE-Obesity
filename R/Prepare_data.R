@@ -88,7 +88,7 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
     spread(disease, rr.out, fill = 1)
 
   #merge RR data into BMI data
-  data.list$rrData <- left_join(rrData, data.bmi, by = c("sex", "ageGrp"))
+  data.list$rrData <- right_join(rrData, data.bmi, by = c("sex", "ageGrp"))
 
   # QUALITY OF LIFE DATA ----
 
@@ -136,6 +136,10 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
       utility = ifelse(sex == "male", utility + uDec.male, utility),
       utility = ifelse(utility > 1, 1, utility))
 
+  # remove unneeded ages
+  baselineQol <- baselineQol %>%
+    filter(age >= min(baselinePrevalence$age))
+  
   #calc decrements across diseases for prevalent & incident cases by age and sex
   baselineQol$prev.dec <- as.matrix(baselinePrevalence[, disease.names]) %*%
     utilityDecDisease$utilityDec.prev[utilityDecDisease$disease %in% disease.names]
@@ -165,6 +169,7 @@ Define_targeted_population <- function(min.bmi = NULL, max.bmi = NULL){
 
   # Counts by sex and age (in 5-year bands)
   data.pop <- data.pop %>%
+    filter(age >= min(baselineIncidenceRates$age)) %>%
     mutate(ageGrp = as.character(cut(age, seq(0, 100, 5), right = FALSE)),
       ageGrp = ifelse(age==100, "[95,100)", ageGrp)) %>%
     group_by(sex, ageGrp) %>%
