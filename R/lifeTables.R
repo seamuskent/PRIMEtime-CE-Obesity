@@ -537,7 +537,8 @@ Summarise_ouput <- function(popData = NULL,
 Calculate_diseaseData_targetedPop <- function(list.data = NULL,
                                               bmi.max = NULL,
                                               bmi.min = NULL,
-                                              bmi.minRisk = NULL){
+                                              bmi.minRisk = NULL,
+                                              age.min = NULL){
 
   # Make data available in present environment ----
   list2env(list.data, envir = environment())
@@ -548,83 +549,90 @@ Calculate_diseaseData_targetedPop <- function(list.data = NULL,
     select(sex, ageGrp, disease.names, mortality) %>%
     mutate_at(c(disease.names, "mortality"), funs(replace(., values = 1)))
 
+  # Identify lowest age in category
+  rateMultipliers$tempAge <- as.numeric(str_sub(str_split(rateMultipliers$ageGrp, ",", simplify = TRUE)[, 1], 2, -1))
+  
   # For each age-sex group
   for (g in 1:nrow(rateMultipliers)){
 
-    # BMI data
-    df.est <- data.frame(bmi = seq(10, max(50, bmi.max+1), 1))
-    df.est$bmi.cat <- cut(df.est$bmi,
-      breaks = c(-Inf, min(25, bmi.min-1), bmi.min, bmi.max, Inf),
-      labels = c("normal", "belowTarget", "targeted", "aboveTarget"),
-      right = FALSE)
-
-    # Highest bmi
-    max.bmi <- tail(df.est$bmi, 1)
-
-    # Log mean and standard deviation
-    bmi.log.sd <- sqrt(log(rrData$sd[g] ^ 2 + exp(2 * log(rrData$mean[g]))) -
-        2 * log(rrData$mean[g]))
-    bmi.log.mean <- log(rrData$mean[g]) - .5 * bmi.log.sd^2
-
-    # Cumulative density
-    df.est$cumDens <- ifelse(df.est$bmi == max.bmi, 1,
-      plnorm(df.est$bmi, bmi.log.mean, bmi.log.sd))
-
-    # Density & product of density & average BMI
-    df.est[, c('dens', 'C.B')] <- NA
-    for (i in 1:(nrow(df.est)-1)){
-      df.est$dens[i] <- df.est$cumDens[i+1] - df.est$cumDens[i]
-      df.est$C.B[i] <- ((df.est$bmi[i] + df.est$bmi[i+1])/2) * df.est$dens[i]
-    }
-
-    # Create data frame by BMI cat
-    df.ref <- data.frame(bmi.cat = levels(df.est$bmi.cat))
-
-    # BMI cut-points
-    df.ref$bmi.cut
-    for (i in 1:nrow(df.ref)){
-      df.ref$bmi.cut[i] <- max(df.est$bmi[df.est$bmi.cat == df.ref$bmi.cat[i]])
-      df.ref$bmi.cut[i] <- if (i < nrow(df.ref)) df.ref$bmi.cut[i]+1 else df.ref$bmi.cut[i]
-    }
-
-    # Distribution pop by BMI cat
-    df.ref$prop <- NA
-    for (i in 1:nrow(df.ref)){
-      df.ref$prop[i] <- df.est$cumDens[df.est$bmi == df.ref$bmi.cut[i]]
-      df.ref$prop[i] <- if (i == 1) df.ref$prop[i] else df.ref$prop[i] - sum(df.ref$prop[1:(i-1)])
-    }
-
-    # Mean BMI within each category
-    df.ref$bmi <- NA
-    for (i in 1:nrow(df.ref)){
-      df.ref$bmi[i] <- sum(df.est$C.B[df.est$bmi.cat == df.ref$bmi.cat[i]], na.rm = TRUE) / df.ref$prop[i]
-    }
-
-    # Number of people by BMI
-    df.ref$n <- df.ref$prop * 1
-
-    # For each disease
-    for (d in c(disease.names, "mortality")){
-
-      # Reset data
-      df.ref[, c("rr", "events", "rate")] <- NA
-
-      # Normalised relative risks by BMI
-      df.ref$rr <- as.numeric(rrData[g, d]) ^ (abs(df.ref$bmi - bmi.minRisk) / 5)
-      df.ref$rr <- df.ref$rr / df.ref$rr[1]
-
-      # Number of events  & rate by BMI
-      df.ref$events[1] <- 1 / (1 + (df.ref$n[-1] %*% df.ref$rr[-1])/
-          df.ref$n[1])
-      df.ref$rate[1] <- df.ref$events[1] / df.ref$n[1]
-      for (i in (1:nrow(df.ref))[-1]){
-        df.ref$rate[i] <- df.ref$rr[i] * df.ref$rate[1]
-        df.ref$events[i] <- df.ref$rate[i] * df.ref$n[i]
+    # keep as 1 if age less than first estimation age
+    if (rateMultipliers$tempAge[g] >= age.min){
+    
+      # BMI data
+      df.est <- data.frame(bmi = seq(10, max(50, bmi.max+1), 1))
+      df.est$bmi.cat <- cut(df.est$bmi,
+        breaks = c(-Inf, min(25, bmi.min-1), bmi.min, bmi.max, Inf),
+        labels = c("normal", "belowTarget", "targeted", "aboveTarget"),
+        right = FALSE)
+  
+      # Highest bmi
+      max.bmi <- tail(df.est$bmi, 1)
+  
+      # Log mean and standard deviation
+      bmi.log.sd <- sqrt(log(rrData$sd[g] ^ 2 + exp(2 * log(rrData$mean[g]))) -
+          2 * log(rrData$mean[g]))
+      bmi.log.mean <- log(rrData$mean[g]) - .5 * bmi.log.sd^2
+  
+      # Cumulative density
+      df.est$cumDens <- ifelse(df.est$bmi == max.bmi, 1,
+        plnorm(df.est$bmi, bmi.log.mean, bmi.log.sd))
+  
+      # Density & product of density & average BMI
+      df.est[, c('dens', 'C.B')] <- NA
+      for (i in 1:(nrow(df.est)-1)){
+        df.est$dens[i] <- df.est$cumDens[i+1] - df.est$cumDens[i]
+        df.est$C.B[i] <- ((df.est$bmi[i] + df.est$bmi[i+1])/2) * df.est$dens[i]
       }
-
-      # Calculate rate multiplier and add to data frames
-      rateMultipliers[g, d] <- df.ref$rate[df.ref$bmi.cat == "targeted"]
-
+  
+      # Create data frame by BMI cat
+      df.ref <- data.frame(bmi.cat = levels(df.est$bmi.cat))
+  
+      # BMI cut-points
+      df.ref$bmi.cut
+      for (i in 1:nrow(df.ref)){
+        df.ref$bmi.cut[i] <- max(df.est$bmi[df.est$bmi.cat == df.ref$bmi.cat[i]])
+        df.ref$bmi.cut[i] <- if (i < nrow(df.ref)) df.ref$bmi.cut[i]+1 else df.ref$bmi.cut[i]
+      }
+  
+      # Distribution pop by BMI cat
+      df.ref$prop <- NA
+      for (i in 1:nrow(df.ref)){
+        df.ref$prop[i] <- df.est$cumDens[df.est$bmi == df.ref$bmi.cut[i]]
+        df.ref$prop[i] <- if (i == 1) df.ref$prop[i] else df.ref$prop[i] - sum(df.ref$prop[1:(i-1)])
+      }
+  
+      # Mean BMI within each category
+      df.ref$bmi <- NA
+      for (i in 1:nrow(df.ref)){
+        df.ref$bmi[i] <- sum(df.est$C.B[df.est$bmi.cat == df.ref$bmi.cat[i]], na.rm = TRUE) / df.ref$prop[i]
+      }
+  
+      # Number of people by BMI
+      df.ref$n <- df.ref$prop * 1
+  
+      # For each disease
+      for (d in c(disease.names, "mortality")){
+  
+        # Reset data
+        df.ref[, c("rr", "events", "rate")] <- NA
+  
+        # Normalised relative risks by BMI
+        df.ref$rr <- as.numeric(rrData[g, d]) ^ (abs(df.ref$bmi - bmi.minRisk) / 5)
+        df.ref$rr <- df.ref$rr / df.ref$rr[1]
+  
+        # Number of events  & rate by BMI
+        df.ref$events[1] <- 1 / (1 + (df.ref$n[-1] %*% df.ref$rr[-1])/
+            df.ref$n[1])
+        df.ref$rate[1] <- df.ref$events[1] / df.ref$n[1]
+        for (i in (1:nrow(df.ref))[-1]){
+          df.ref$rate[i] <- df.ref$rr[i] * df.ref$rate[1]
+          df.ref$events[i] <- df.ref$rate[i] * df.ref$n[i]
+        }
+  
+        # Calculate rate multiplier and add to data frames
+        rateMultipliers[g, d] <- df.ref$rate[df.ref$bmi.cat == "targeted"]
+  
+      }
     }
   }
 

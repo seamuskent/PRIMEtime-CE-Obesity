@@ -73,7 +73,7 @@ Calculate_single_PIF <- function(bmi.mean, bmi.sd,
   df.ref <- data.frame(bmi.cat = levels(df.est$bmi.cat))
 
   #BMI cut-points
-  df.ref$bmi.cut
+  df.ref$bmi.cut <- NA
   for (i in 1:nrow(df.ref)){
     df.ref$bmi.cut[i] <- max(df.est$bmi[df.est$bmi.cat == df.ref$bmi.cat[i]])
     df.ref$bmi.cut[i] <- if (i < nrow(df.ref)) df.ref$bmi.cut[i]+1 else df.ref$bmi.cut[i]
@@ -165,11 +165,17 @@ calculate_PIFs_byYear <- function(wt.loss.mntnd = FALSE,
                                   wt.loss.yr1 = NULL,
                                   bmi.min = NULL,
                                   bmi.max = NULL,
-                                  bmi.min.risk = NULL){
+                                  bmi.min.risk = NULL,
+                                  min.age = NULL){
 
   # Make data available in present environment ----
   list2env(list.data, envir = environment())
 
+  # Amend RR data to chosen age range
+  rrData$tempAge <- as.numeric(str_sub(str_split(rrData$ageGrp, ",", simplify = TRUE)[, 1], 2, -1))
+  rrData <- filter(rrData, tempAge >= min.age)
+  rrData$tempAge <- NULL
+  
   # Set up PIF list ----
   pif.list <- list()
 
