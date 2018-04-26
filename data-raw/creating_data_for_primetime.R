@@ -8,7 +8,9 @@ rm(list =ls())
 options(stringsAsFactors = FALSE)
 
 # LOAD DATA ----
-Dir.path <- "J:/obesity_modelling/PRIME/primetime_pkg/primetimeCE/data-raw/"
+Dir.path <- "J:/obesity_modelling/PRIME/PRIMEtime-CE-Obesity/data-raw/"
+
+# Original PRIMEtime data
 data.pop <- read.csv(paste0(Dir.path, "n_pop_by_age_1yr_31102017.csv"))
 data.mortalityRates <- read.csv(paste0(Dir.path, "totMortalityRate_byAgeSex_31102017.csv"))
 data.incidenceRates <- read.csv(paste0(Dir.path, "diseaseIncidenceRates_byAgeSex_31102017.csv"))
@@ -25,7 +27,18 @@ data.rr <- read.csv(paste0(Dir.path, "relativeRisk_byAgeSex_06022018.csv"))
 data.utilityAge <- read.csv(paste0(Dir.path, "utilities_by_ageCat_02032018.csv"))
 data.disease.names <- c("ihd", "stroke", "diabetes", "cancerBreast", "cancerColorectum",
                    "cancerLiver", "cancerKidney", "cancerPancreas")
-data.bmi <- read.table("J:/obesity_modelling/PRIME/input_data/bmi_by_sex_and_age5yr_HSE2014_smoothed_24042018.txt", header = TRUE)
+
+# BMI smoothed from HSE 2014
+data.bmi <- read.table(paste0(Dir.path, "bmi_by_sex_and_age5yr_HSE2014_smoothed_24042018.txt"), header = TRUE)
+
+# BMI by diabetes from HSE 2014
+data.bmi.byDiab <- read.table(paste0(Dir.path, "bmi_by_sex__age5yr_and_diab_HSE2014_25042018.txt"), header = TRUE)
+
+# Disease data by diabetes
+load(paste0(Dir.path, "disease_data_by_diabetes_25042018.Rd"))
+data.incidenceRates.byDiab <- diab.data$incidence.by.diabetes
+data.prevalence.byDiab <- diab.data$prevalence.by.diabetes
+data.mortalityRates.byDiab <- diab.data$mortality.by.diabetes
 
 # DETERMINISTIC DATA ----
 
@@ -67,5 +80,7 @@ usethis::use_data(data.pop, data.bmi,
                   data.caseFatalityTrends, data.dalyWt,
                   data.costs.hc, data.costs.hc.other, data.costs.formalCare,
                   data.rr, data.utilityAge, data.utilityDecs,
-                  data.disease.names,
+                  data.disease.names, data.bmi.byDiab,
+                  data.incidenceRates.byDiab, data.prevalence.byDiab,
+                  data.mortalityRates.byDiab,
   overwrite = TRUE, internal = FALSE)
