@@ -28,7 +28,6 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
     }
   } else data.costs.hc.other
 
-
   # Social care costs ----
   if (psa){
     if (singleCostMultiplier){
@@ -99,7 +98,7 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
   # BASELINE DISEASE RATES ----
   
   # Affected by diabetes status
-  data.list$baselineIncidence <- data.incidenceRates
+  data.list$baselineIncidenceRates <- data.incidenceRates
   data.list$baselinePrevalence  <- data.prevalence
   data.list$totMortalityRates <- data.mortalityRates
   
