@@ -104,7 +104,11 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE, diab.sg =
   data.list$rrData <- right_join(rrData, data.list$bmiData, by = c("sex", "ageGrp"))
 
   # DISEASE NAMES ----
-  data.list$disease.names <- data.disease.names
+  data.list$disease.names <- if (diab.sg == "Diabetics") {
+    data.disease.names[data.disease.names != "diabetes"]
+  } else {
+    data.disease.names
+  }
   
   # BASELINE DISEASE RATES ----
   
