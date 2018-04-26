@@ -1,5 +1,5 @@
 # Data file for generating data for primetimeCE package
-# last updated: 07.03.2018
+# last updated: 26.04.2018
 
 #clear workspace
 rm(list =ls())
@@ -11,7 +11,6 @@ options(stringsAsFactors = FALSE)
 Dir.path <- "J:/obesity_modelling/PRIME/primetime_pkg/primetimeCE/data-raw/"
 data.pop <- read.csv(paste0(Dir.path, "n_pop_by_age_1yr_31102017.csv"))
 data.mortalityRates <- read.csv(paste0(Dir.path, "totMortalityRate_byAgeSex_31102017.csv"))
-data.bmi <- read.csv(paste0(Dir.path, "bmi_byAgeSex_22122017.csv"))
 data.incidenceRates <- read.csv(paste0(Dir.path, "diseaseIncidenceRates_byAgeSex_31102017.csv"))
 data.caseFatality <- read.csv(paste0(Dir.path, "caseFatalityRates_byAgeSex_31102017.csv"))
 data.prevalence <- read.csv(paste0(Dir.path, "baselinePrevalence_byAgeSex_31102017.csv"))
@@ -33,12 +32,7 @@ disease.names <- c("ihd", "stroke", "diabetes", "cancerBreast", "cancerColorectu
 totMortalityRates <- data.mortalityRates
 
 # BMI data
-data.bmi <- data.bmi %>%
-  filter(age < 100) %>%
-  mutate(ageGrp = as.character(cut(age, breaks = seq(0, 100, 5), right = FALSE))) %>%
-  group_by(sex, ageGrp) %>%
-  summarise_at(c("mean", "sd", "height"), mean) %>%
-  ungroup()
+data.bmi <- read.table("J:/obesity_modelling/PRIME/input_data/bmi_by_sex_and_age5yr_HSE2014_smoothed_24042018.txt", header = TRUE)
 
 # Disease incidence, prev, & case-fatality
 baselineIncidenceRates <- f.convertClassEmptyDis(data.incidenceRates)
@@ -57,6 +51,23 @@ trendsCaseFatality <- select(data.pop, age, sex) %>%
 
 # DALY weights
 dalyWeights <- data.dalyWt
+
+# Inflate costs ====
+
+# cost multiplier
+cm <- 302.3 / 290.5
+
+# Disease-related healthcare costs
+data.costs.hc$unitCost <- data.costs.hc$unitCost * cm
+
+# NHS unrelated costs
+data.costs.hc.other$cost <- data.costs.hc.other$cost * cm
+
+# formal care costs
+tempNames <- names(data.costs.formalCare)[-c(1:2)]
+data.costs.formalCare <- data.costs.formalCare %>%
+  mutate_at(tempNames, funs(. * cm))
+
 
 # SAVE AS R OBJECTS ----
 usethis::use_data_raw()
