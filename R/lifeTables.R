@@ -682,7 +682,7 @@ Calculate_diseaseData_targetedPop <- function(list.data = NULL,
     # Calculate baseline prevalences in targeted population
     calcPrev[, c("S", "C", "D", "PY", "c", "b")] <- NA
     for (i in 1:nrow(calcPrev)){
-      if (calcPrev$q[i]==0 | calcPrev$age[i]==0){
+      if (calcPrev$q[i]==0 | calcPrev$age[i]==min(calcPrev$age)){
         calcPrev[i, "S"] <- 1; calcPrev[i, c("C", "D")] <- 0
       } else {
         calcPrev$S[i] <- (2*(calcPrev$v[i]-calcPrev$w[i])*(calcPrev$S[i-1]*(calcPrev$f[i]+calcPrev$r[i]) +
