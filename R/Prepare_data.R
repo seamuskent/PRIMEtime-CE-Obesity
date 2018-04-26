@@ -41,6 +41,9 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
     }
   } else data.list$costs.formalCare <- data.costs.formalCare
 
+  # BMI DATA ----
+  data.list$bmiData <- data.bmi
+  
   # RELATIVE RISK DATA ----
 
   # copy data
@@ -88,8 +91,26 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
     spread(disease, rr.out, fill = 1)
 
   #merge RR data into BMI data
-  data.list$rrData <- right_join(rrData, data.bmi, by = c("sex", "ageGrp"))
+  data.list$rrData <- right_join(rrData, data.list$bmiData, by = c("sex", "ageGrp"))
 
+  # DISEASE NAMES ----
+  data.list$disease.names <- data.disease.names
+  
+  # BASELINE DISEASE RATES ----
+  
+  # Affected by diabetes status
+  data.list$baselineIncidence <- data.incidenceRates
+  data.list$baselinePrevalence  <- data.prevalence
+  data.list$totMortalityRates <- data.mortalityRates
+  
+  # unaffected by diabetes status
+  data.list$baselineCaseFatality <- data.caseFatality
+  data.list$trendsCaseFatality <- data.caseFatalityTrends
+  data.list$trendsIncidence <- data.incidenceTrends
+  
+  # DALY WEIGHTS ----
+  data.list$dalyWeights <- data.dalyWt
+  
   # QUALITY OF LIFE DATA ----
 
   #mean utilities by age categories
@@ -138,13 +159,13 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE){
 
   # remove unneeded ages
   baselineQol <- baselineQol %>%
-    filter(age >= min(baselinePrevalence$age))
+    filter(age >= min(data.list$baselinePrevalence$age))
   
   #calc decrements across diseases for prevalent & incident cases by age and sex
-  baselineQol$prev.dec <- as.matrix(baselinePrevalence[, disease.names]) %*%
-    utilityDecDisease$utilityDec.prev[utilityDecDisease$disease %in% disease.names]
-  baselineQol$inc.dec <- as.matrix(baselineIncidenceRates[, disease.names]) %*%
-    utilityDecDisease$utilityDec.inc[utilityDecDisease$disease %in% disease.names]
+  baselineQol$prev.dec <- as.matrix(data.list$baselinePrevalence[, data.disease.names]) %*%
+    utilityDecDisease$utilityDec.prev[utilityDecDisease$disease %in% data.disease.names]
+  baselineQol$inc.dec <- as.matrix(data.list$baselineIncidenceRates[, data.disease.names]) %*%
+    utilityDecDisease$utilityDec.inc[utilityDecDisease$disease %in% data.disease.names]
 
   #calculate final utility by age and sex
   baselineQol$utility <- rowSums(baselineQol[, c("utility", "prev.dec", "inc.dec")])
