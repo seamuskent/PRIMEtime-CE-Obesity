@@ -135,6 +135,35 @@ summary_table <- function(
       select(sex, ageGrp, count)
   }
 
+  # diabetic population
+  
+  if (arguments$subgroup != "All adults"){
+    # est prop diab and non diab by sex and age in 5-yr bands
+    diab.pop <- data.pop %>%
+      left_join(., select(data.prevalence, sex, age, diabetes), by = c("age", "sex")) %>%
+      mutate(nondiabetic = 1 - diabetes) %>%
+      mutate(ageGrp = as.character(cut(age, breaks = seq(0, 100, 5), right = FALSE))) %>%
+      filter(age < 100) %>%
+      group_by(sex, ageGrp) %>%
+      summarise_at(c("diabetes", "nondiabetic"), funs(Hmisc::wtd.mean(., count)))%>%
+      gather(key = diabetes, value = diab.prop, diabetes, nondiabetic) %>%
+      mutate(diabetes = diabetes == "diabetes")
+    
+    # select data depending on analysis
+    diab.pop <- if (arguments$subgroup == "Diabetics"){
+      filter(diab.pop, diabetes == TRUE) %>%
+        select(-diabetes)
+    } else {
+      filter(diab.pop, diabetes == FALSE) %>%
+        select(-diabetes)
+    }
+    
+    # Adjust population for diabetes status
+    pop <- left_join(pop, diab.pop, by = c("sex", "ageGrp")) %>%
+      mutate(count = count * diab.prop) %>%
+      select(-diab.prop)
+  }
+
   # Summarise across age bands ----
 
   # Sum results over fifteen year age bands
