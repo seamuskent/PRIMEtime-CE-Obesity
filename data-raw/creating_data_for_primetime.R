@@ -23,34 +23,24 @@ data.costs.hc.other <- read.csv(paste0(Dir.path, "costs_otherNonDisease_01112017
 data.costs.formalCare <- read.csv(paste0(Dir.path, "societalcosts_ageSexDisease_02112017.csv"))
 data.rr <- read.csv(paste0(Dir.path, "relativeRisk_byAgeSex_06022018.csv"))
 data.utilityAge <- read.csv(paste0(Dir.path, "utilities_by_ageCat_02032018.csv"))
-disease.names <- c("ihd", "stroke", "diabetes", "cancerBreast", "cancerColorectum",
+data.disease.names <- c("ihd", "stroke", "diabetes", "cancerBreast", "cancerColorectum",
                    "cancerLiver", "cancerKidney", "cancerPancreas")
+data.bmi <- read.table("J:/obesity_modelling/PRIME/input_data/bmi_by_sex_and_age5yr_HSE2014_smoothed_24042018.txt", header = TRUE)
 
 # DETERMINISTIC DATA ----
 
-# Data not requiring further amendments
-totMortalityRates <- data.mortalityRates
-
-# BMI data
-data.bmi <- read.table("J:/obesity_modelling/PRIME/input_data/bmi_by_sex_and_age5yr_HSE2014_smoothed_24042018.txt", header = TRUE)
-
 # Disease incidence, prev, & case-fatality
-baselineIncidenceRates <- f.convertClassEmptyDis(data.incidenceRates)
-baselineCaseFatality <- f.convertClassEmptyDis(data.caseFatality)
-baselinePrevalence <- f.convertClassEmptyDis(data.prevalence)
+data.incidenceRates <- f.convertClassEmptyDis(data.incidenceRates)
+data.caseFatality <- f.convertClassEmptyDis(data.caseFatality)
+data.prevalence <- f.convertClassEmptyDis(data.prevalence)
 
 # Incidence & case-fatality trends
-trendsIncidence <- select(data.pop, age, sex) %>%
+data.incidenceTrends <- select(data.pop, age, sex) %>%
   mutate(ageBand = as.character(cut(age, breaks = c(0, 35, 65, Inf), right = FALSE))) %>%
   left_join(., data.incidenceTrends, by = c("ageBand", "sex"))
-trendsCaseFatality <- select(data.pop, age, sex) %>%
+data.caseFatalityTrends <- select(data.pop, age, sex) %>%
   mutate(ageBand = as.character(cut(age, breaks = c(0, 35, 65, Inf), right = FALSE))) %>%
-  left_join(., mutate(data.caseFatalityTrends,
-    diabetes = ihd),
-    by = c("ageBand", "sex"))
-
-# DALY weights
-dalyWeights <- data.dalyWt
+  left_join(., mutate(data.caseFatalityTrends, diabetes = ihd), by = c("ageBand", "sex"))
 
 # Inflate costs ====
 
@@ -72,10 +62,10 @@ data.costs.formalCare <- data.costs.formalCare %>%
 # SAVE AS R OBJECTS ----
 usethis::use_data_raw()
 usethis::use_data(data.pop, data.bmi,
-                  totMortalityRates, baselineIncidenceRates,
-                  baselineCaseFatality, baselinePrevalence, trendsIncidence,
-                  trendsCaseFatality, dalyWeights,
+                  data.mortalityRates, data.incidenceRates,
+                  data.caseFatality, data.prevalence, data.incidenceTrends,
+                  data.caseFatalityTrends, data.dalyWt,
                   data.costs.hc, data.costs.hc.other, data.costs.formalCare,
                   data.rr, data.utilityAge, data.utilityDecs,
-                  disease.names,
+                  data.disease.names,
   overwrite = TRUE, internal = FALSE)
