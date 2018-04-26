@@ -27,7 +27,8 @@ summary_table <- function(
   timeH = NULL,
   costs.to.include = "disease-related nhs costs",
   present.only.overall.results = FALSE,
-  nicely.presented.results = TRUE){ 
+  nicely.presented.results = TRUE,
+  diabetes = NULL){ 
 
   # Check that interventions to assess exist
   if (!exists(comparator, where = model.results)){
@@ -114,6 +115,7 @@ summary_table <- function(
 
   # Define population of interest ----
 
+  
   # Whole UK Population (default)
   if (whole.uk.population){
     pop <- Define_targeted_population(min.bmi = arguments$bmi.target.min,
@@ -133,6 +135,36 @@ summary_table <- function(
         right = FALSE)),
         ageGrp = ifelse(age == 100, "[95,100)", ageGrp)) %>%
       select(sex, ageGrp, count)
+  }
+  
+  # diabetic population
+  if (!is.null(diabetes)){
+    
+    # est prop diab and non diab by sex and age in 5-yr bands
+    diab.pop <- data.pop %>%
+      left_join(., pop.prevalence.diabetes, by = c("age", "sex")) %>%
+      mutate(nondiabetic = 1 - diabetes) %>%
+      mutate(ageGrp = as.character(cut(age, breaks = seq(0, 100, 5), right = FALSE))) %>%
+      filter(age < 100) %>%
+      group_by(sex, ageGrp) %>%
+      summarise_at(c("diabetes", "nondiabetic"), funs(Hmisc::wtd.mean(., count)))%>%
+      gather(key = diabetes, value = diab.prop, diabetes, nondiabetic) %>%
+      mutate(diabetes = diabetes == "diabetes")
+    
+    # select data depending on analysis
+    if (diabetes == TRUE){
+      diab.pop <- filter(diab.pop, diabetes == TRUE) %>%
+        select(-diabetes)
+    } else {
+      diab.pop <- filter(diab.pop, diabetes == FALSE) %>%
+        select(-diabetes)
+    }
+    
+    # Adjust population for diabetes status
+    pop <- pop %>%
+      left_join(., diab.pop, by = c("sex", "ageGrp")) %>%
+      mutate(count = count * diab.prop) %>%
+      select(-diab.prop)
   }
 
   # Summarise across age bands ----
