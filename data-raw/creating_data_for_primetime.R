@@ -35,10 +35,10 @@ data.bmi <- read.table(paste0(Dir.path, "bmi_by_sex_and_age5yr_HSE2014_smoothed_
 data.bmi.byDiab <- read.table(paste0(Dir.path, "bmi_by_sex__age5yr_and_diab_HSE2014_25042018.txt"), header = TRUE)
 
 # Disease data by diabetes
-load(paste0(Dir.path, "disease_data_by_diabetes_25042018.Rd"))
-data.incidenceRates.byDiab <- diab.data$incidence.by.diabetes
-data.prevalence.byDiab <- diab.data$prevalence.by.diabetes
-data.mortalityRates.byDiab <- diab.data$mortality.by.diabetes
+#load(paste0(Dir.path, "disease_data_by_diabetes_25042018.Rd"))
+#data.incidenceRates.byDiab <- diab.data$incidence.by.diabetes
+#data.prevalence.byDiab <- diab.data$prevalence.by.diabetes
+#data.mortalityRates.byDiab <- diab.data$mortality.by.diabetes
 
 # DETERMINISTIC DATA ----
 
@@ -71,6 +71,10 @@ tempNames <- names(data.costs.formalCare)[-c(1:2)]
 data.costs.formalCare <- data.costs.formalCare %>%
   mutate_at(tempNames, funs(. * cm))
 
+# RR for on disease rates ====
+
+data.diab.rr.incidence <- read.csv(paste0(Dir.path, "relativeRisk_diabetes_byAgeSex_22122017.csv"))
+data.diab.rr.mortality <- read.csv(paste0(Dir.path, "relativeRisk_diabetes_mortality_byAgeSex_25042018.csv"))
 
 # SAVE AS R OBJECTS ----
 usethis::use_data_raw()
@@ -83,4 +87,5 @@ usethis::use_data(data.pop, data.bmi,
                   data.disease.names, data.bmi.byDiab,
                   data.incidenceRates.byDiab, data.prevalence.byDiab,
                   data.mortalityRates.byDiab,
+                  data.diab.rr.incidence, data.diab.rr.mortality,
   overwrite = TRUE, internal = FALSE)
