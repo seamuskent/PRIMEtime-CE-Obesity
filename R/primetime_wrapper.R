@@ -18,6 +18,7 @@
 #' @param deterministic Whether to run a deterministic (default) or probabilistic analysis.
 #' @param whole.uk.population Whether to model outcomes over the whole UK population of selected age (default) or a user-specified population.
 #' @param population.characeristics A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}. 
+#' @param subgroup Indicates whether to model outcomes across all adults ("All adults"; default) or in subgroup of individuals with type-2 diabetes ("Diabetics"") or without ("Non-diabetics").  
 #' @return Mean per-person health and economic outcomes in groups defined by sex and age (in 5-year bands) for each year of analysis, for the control and treatment groups, and differences between treatment and control groups. The output can be accessed by other functions to produce standardised outputs (e.g. summary tables), or can be used directly by the user for bespoke analyses.
 #' @examples
 #' primetime(time.horizon = 25,age.range = c(20, 80),cost.of.treatment = c(34.06, 1001.58),bmi.target.min = 30, bmi.target.max = 60,mean.wt.loss.yr1 = c(3.1, 10.3),time.to.trt.effect = 1,time.to.weight.regain = 5,some.wt.loss.maintained = FALSE,mean.wt.loss.maintained = NULL,discount.rate.health = 3.5,discount.rate.cost = 3.5,whole.uk.population = TRUE)

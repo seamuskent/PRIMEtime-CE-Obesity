@@ -56,6 +56,8 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE, diab.sg =
   
   # RELATIVE RISK DATA ----
 
+  # RRs for BMI on disease risks
+  
   # copy data
   rrData <- data.rr
 
@@ -112,30 +114,57 @@ Manipulate_data <- function(psa = FALSE, singleCostMultiplier = FALSE, diab.sg =
   
   # BASELINE DISEASE RATES ----
   
-  # Affected by diabetes status
+  # Generate RRs for effect diabetes on disease; random draw from log-normal distribution
+  rr.diab.inc <- data.diab.rr.incidence
+  rr.diab.m <- data.diab.rr.mortality
+  if (psa) {
+      
+      # incidence
+      log.sd <- sqrt(log(data.diab.rr.incidence$rr_se ^ 2 + 
+          exp(2 * log(data.diab.rr.incidence$rr_mean))) - 
+          2 * log(data.diab.rr.incidence$rr_mean))
+      log.mean <- log(data.diab.rr.incidence$rr_mean) - .5 * log.sd^2
+      rr.diab.inc$rr.out <- rlnorm(length(log.mean), log.mean, log.sd)
+
+      # mortality
+      log.sd <- sqrt(log(data.diab.rr.mortality$rr_se ^ 2 + 
+          exp(2 * log(data.diab.rr.mortality$rr_mean))) - 
+          2 * log(data.diab.rr.mortality$rr_mean))
+      log.mean <- log(data.diab.rr.mortality$rr_mean) - .5 * log.sd^2
+      rr.diab.m$rr.out <- rlnorm(length(log.mean), log.mean, log.sd)
+    } else {
+      
+    rr.diab.inc$rr.out <- rr.diab.inc$rr_mean
+    rr.diab.m$rr.out <- rr.diab.m$rr_mean
+  }
+  rr.diab.data <- list("rr.diab" = rr.diab.inc, "rr.mortality" = rr.diab.m)
   
+  # Calculate adjusted disease incidence, prevalence, and mortality rates
+  diab.disease.data <- generate_diseaseRates_byDiabetes(relative.risks = rr.diab.data)
+  
+  # Select disease data according to diabetes status
   if (diab.sg == "All adults"){
     data.list$baselineIncidenceRates <- data.incidenceRates
     data.list$baselinePrevalence  <- data.prevalence
     data.list$totMortalityRates <- data.mortalityRates
   } else if (diab.sg == "Diabetics"){
-    data.list$baselineIncidenceRates <- data.incidenceRates.byDiab %>%
+    data.list$baselineIncidenceRates <- diab.disease.data$diab.incidenceRates %>%
       filter(has.diabetes == TRUE) %>%
       select(-has.diabetes)
-    data.list$baselinePrevalence  <- data.prevalence.byDiab %>%
+    data.list$baselinePrevalence  <- diab.disease.data$diab.prevalence %>%
       filter(has.diabetes == TRUE) %>%
       select(-has.diabetes)
-    data.list$totMortalityRates <- data.mortalityRates.byDiab %>%
+    data.list$totMortalityRates <- diab.disease.data$diab.mortalityRates %>%
       filter(has.diabetes == TRUE) %>%
       select(-has.diabetes)
   } else {
-    data.list$baselineIncidenceRates <- data.incidenceRates.byDiab %>%
+    data.list$baselineIncidenceRates <- diab.disease.data$diab.incidenceRates %>%
       filter(has.diabetes == FALSE) %>%
       select(-has.diabetes)
-    data.list$baselinePrevalence  <- data.prevalence.byDiab %>%
+    data.list$baselinePrevalence  <- diab.disease.data$diab.prevalence %>%
       filter(has.diabetes == FALSE) %>%
       select(-has.diabetes)
-    data.list$totMortalityRates <- data.mortalityRates.byDiab %>%
+    data.list$totMortalityRates <- diab.disease.data$diab.mortalityRates %>%
       filter(has.diabetes == FALSE) %>%
       select(-has.diabetes)
   }
@@ -270,3 +299,151 @@ f_randomCosts <- function(input, formalCare = FALSE){
   return(out)
 }
 
+
+# Functioning for calculate disease rates by diabetes subgroup
+generate_diseaseRates_byDiabetes <- function(relative.risks = NULL){
+  
+  # manipulate relative risk data ----
+  
+  # Add RR data to environment
+  list2env(relative.risks, envir = environment())
+  
+  # expand relative risks for mortality by age
+  rr.mortality$freq <- rr.mortality$end - rr.mortality$start + 1
+  sum(rr.mortality$freq) == 101
+  rr.mortality <- splitstackshape::expandRows(rr.mortality, "freq")
+  rr.mortality$age <- 0:(nrow(rr.mortality)-1)
+  rr.mortality <- select(rr.mortality, age, rr = rr.out)
+  
+  # select outcome diab on disease incidence
+  rr.diab <- select(rr.diab, disease, sex, rr = rr.out)
+
+  # estimate incidence and mortality rates by diabetes status ====
+  
+  # add mortality rate to incidence data
+  temp.incidence <- left_join(data.incidenceRates, data.mortalityRates, by = c("sex", "age"))
+  
+  # create new incidence rates for each outcome
+  new.incidence.data <- NULL
+  for (d in c("ihd", "stroke", "mortalityRate")){
+    
+    # extract data and add diabetes prevalence 
+    tempData <- select(temp.incidence, sex, age, rate = d) %>%
+      filter(age >= 20) %>%
+      left_join(., select(data.prevalence, sex, age, diabetes), by = c("sex", "age")) 
+    
+    # add in relative risk data  
+    if (d != "mortalityRate"){ #FIX ERROR HERE,  "mortalityRates"
+      tempData <- tempData %>%
+        left_join(., filter(rr.diab, disease == d), by = "sex") #FIX ERROR HERE, disease = d
+    } else {
+      tempData <- tempData %>%
+        left_join(., rr.mortality, by = "age")
+    }
+    
+    # adjust data
+    tempData$N <- 1000
+    tempData$Nd <- tempData$N * tempData$diabetes
+    tempData$Nh <- tempData$N - tempData$Nd
+    tempData$E <- tempData$N * tempData$rate
+    tempData$Rh <- tempData$E / (tempData$Nd * tempData$rr + tempData$Nh)
+    tempData$Rd <- tempData$Rh * tempData$rr
+    tempData$Ed <- tempData$Nd * tempData$Rd
+    tempData$Eh <- tempData$Nh * tempData$Rh
+    tempData$rate.T <- tempData$Ed / tempData$Nd
+    tempData$rate.F <- tempData$Eh / tempData$Nh
+    
+    # tidy data
+    tempData <- tempData %>%
+      select(sex, age, rate.T, rate.F) %>%
+      gather(key = has.diabetes, value = disease, rate.T, rate.F) %>%
+      mutate(has.diabetes = has.diabetes == "rate.T") %>%
+      rename_at("disease", funs(paste(d)))
+    
+    # add data to list
+    if (is.null(new.incidence.data)){
+      new.incidence.data <- tempData
+    } else {
+      new.incidence.data <- left_join(new.incidence.data, tempData, 
+        by = c("sex", "age", "has.diabetes"))
+    }
+  }
+  
+  # extract mortality data
+  new.mortality.data <- select(new.incidence.data, sex, age, has.diabetes, mortalityRate)
+  
+  #incorporate new incidence data into old, and adjust diabetes.  
+  new.incidence.data <- new.incidence.data %>%
+    left_join(., select(data.incidenceRates, -ihd, -stroke), by = c("sex", "age")) %>%
+    mutate(diabetes = ifelse(has.diabetes, 0, diabetes)) %>%
+    select(-mortalityRate)
+  
+  # Estimate disease prevalence ----
+  
+  # set-up output data
+  new.prevalence.rates <- bind_rows(data.prevalence, data.prevalence) %>%
+    mutate(has.diabetes = ifelse(row_number() <= n() / 2, TRUE, FALSE)) %>%
+    filter(age >= 20)
+  
+  # Estimate for each disease
+  for (d in c("ihd", "stroke")){
+    
+    # whether has diabetes
+    for (diab in c(TRUE, FALSE)){
+      
+      # Combine data on prevalence, incidence, and case-fatality
+      calcPrev <- select(new.incidence.data, sex, age, has.diabetes, i = d) %>%
+        filter(has.diabetes == diab) %>%
+        left_join(., select(data.caseFatality, sex, age, f = d),
+          by = c("sex", "age")) %>%
+        mutate(r = 0,
+          I = i + r + f,
+          q = sqrt(i^2 + 2*i*r - 2*i*f + r^2 + 2*f*r + f^2),
+          w = exp(-(I+q)/2),
+          v = exp(-(I-q)/2))
+      
+      # Calculate baseline prevalences in targeted population
+      calcPrev[, c("S", "C", "D", "PY", "c", "b")] <- NA
+      for (i in 1:nrow(calcPrev)){
+        if (calcPrev$q[i]==0 | calcPrev$age[i]==20){
+          calcPrev[i, "S"] <- 1; calcPrev[i, c("C", "D")] <- 0
+        } else {
+          calcPrev$S[i] <- (2*(calcPrev$v[i]-calcPrev$w[i])*(calcPrev$S[i-1]*(calcPrev$f[i]+calcPrev$r[i]) +
+              calcPrev$C[i-1]*calcPrev$r[i]) + calcPrev$S[i-1]*(calcPrev$v[i]*(calcPrev$q[i]-
+                  calcPrev$I[i]) + calcPrev$w[i]*(calcPrev$q[i]+calcPrev$I[i]))) / (2*calcPrev$q[i])
+          calcPrev$C[i] <- -((calcPrev$v[i]-calcPrev$w[i])*(2*((calcPrev$f[i]+calcPrev$r[i])*(calcPrev$S[i-1]+
+              calcPrev$C[i-1])-calcPrev$I[i]*calcPrev$S[i-1]) - calcPrev$C[i-1]*calcPrev$I[i]) -
+              calcPrev$C[i-1]*calcPrev$q[i]*(calcPrev$v[i]+calcPrev$w[i])) / (2*calcPrev$q[i])
+          calcPrev$D[i] <- (((calcPrev$v[i]-calcPrev$w[i])*(2*calcPrev$f[i]*calcPrev$C[i-1] -
+              calcPrev$I[i]*(calcPrev$S[i-1]+calcPrev$C[i-1]))) - (calcPrev$q[i]*
+                  (calcPrev$S[i-1]+calcPrev$C[i-1])*(calcPrev$v[i]+calcPrev$w[i])) +
+              (2*calcPrev$q[i]*(calcPrev$S[i-1]+calcPrev$C[i-1]+calcPrev$D[i-1]))) / (2*calcPrev$q[i])
+          
+        }
+      }
+      for (i in 1:nrow(calcPrev)){
+        if (calcPrev$age[i] != 100) {
+          calcPrev$PY[i] <- .5 * (calcPrev$S[i]+calcPrev$C[i]+calcPrev$S[i+1]+calcPrev$C[i+1])
+          calcPrev$c[i] <- .5 * ((calcPrev$C[i]+calcPrev$C[i+1]) / calcPrev$PY[i])
+          calcPrev$b[i] <- (calcPrev$D[i+1] - calcPrev$D[i]) / (calcPrev$PY[i])
+        }
+      }
+      
+      # Replace output in targeted group baseline prevalence data
+      new.prevalence.rates[new.prevalence.rates$has.diabetes == diab, d] <- calcPrev$c
+    }
+  }
+  
+  # changes to diabetes prevalence by status
+  new.prevalence.rates <- mutate(new.prevalence.rates, 
+    diabetes = ifelse(has.diabetes, 1, 0))
+  
+  # Data to extract ----
+  diab.disease.data <- list(
+    "diab.incidenceRates" = new.incidence.data,
+    "diab.prevalence" = new.prevalence.rates,
+    "diab.mortalityRates" = new.mortality.data
+  )
+  
+  
+}

@@ -12,7 +12,7 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
   discount.rate.cost = NULL, deterministic = TRUE,
   bmi.directEffect.onMortality = TRUE, bmi.directEffect.onQoL = FALSE,
   model.incidence.trends = TRUE, whole.uk.population = TRUE,
-  population.characteristics = NULL)
+  population.characteristics = NULL, subgroup = "All adults")
 }
 \arguments{
 \item{time.horizon}{A positive integer. Outcomes are estimated up to age 100 years.}
@@ -42,6 +42,8 @@ primetime(time.horizon = NULL, age.range = c(20, 100),
 \item{deterministic}{Whether to run a deterministic (default) or probabilistic analysis.}
 
 \item{whole.uk.population}{Whether to model outcomes over the whole UK population of selected age (default) or a user-specified population.}
+
+\item{subgroup}{Indicates whether to model outcomes across all adults ("All adults"; default) or in subgroup of individuals with type-2 diabetes ("Diabetics"") or without ("Non-diabetics").}
 
 \item{population.characeristics}{A five-element numeric vector reporting in order: the proportion of men, mean age in men, standard deviation of age in men, mean age in women, and standard deviation of age in women. Only required when \emph{whole.uk.population = TRUE}.}
 }
