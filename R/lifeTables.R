@@ -478,11 +478,12 @@ Generate_outcomes <- function(lifeTab = NULL,
     mutate(year = 0)
 
   #carry observations forward beyond age 100 to time-horizon.
-  if (age.start + timeH >= 100){
+  if (age.start + timeH > 100){ 
+    year.high <- max(lifeTab$year)
     locf <- lifeTab %>%
       group_by(sex) %>%
       filter(row_number() == n()) %>%
-      splitstackshape::expandRows(count = 2, count.is.col = FALSE) %>%
+      splitstackshape::expandRows(count = timeH - year.high, count.is.col = FALSE) %>%
       group_by(sex) %>%
       mutate(year = year + row_number())
     lifeTab <- bind_rows(lifeTab, locf)
