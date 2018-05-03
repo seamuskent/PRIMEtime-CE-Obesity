@@ -367,6 +367,7 @@ summary_table <- function(
 
 
 #' @rdname summary_table 
+#' @export
 summary_psa <- function(model.results = NULL, psa.out = NULL){
 
   # Generate summary for deterministic results

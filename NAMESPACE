@@ -2,4 +2,5 @@
 
 export(primetime)
 export(primetime_psa)
+export(summary_psa)
 export(summary_table)
