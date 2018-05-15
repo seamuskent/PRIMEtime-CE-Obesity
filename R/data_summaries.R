@@ -116,8 +116,9 @@ summary_table <- function(
 
   # Whole UK Population (default)
   if (whole.uk.population){
+    primetime.data <- Manipulate_data(psa = FALSE, diab.sg = arguments$subgroup)
     pop <- Define_targeted_population(min.bmi = arguments$bmi.target.min,
-      max.bmi = arguments$bmi.target.max)
+      max.bmi = arguments$bmi.target.max, data.list = primetime.data)
     pop <- mutate(pop, count = count * propTarget) %>%
       select(sex, ageGrp, count)
   } else {
