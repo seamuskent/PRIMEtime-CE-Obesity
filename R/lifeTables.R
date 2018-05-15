@@ -26,7 +26,7 @@ Produce_lifetable <- function(dataT = NULL,
   if (intervention){
     # If model mortality through diseases only
     if (!bmi.direct){
-      for (d in disease.names){
+      for (d in data.disease.names){
         lifeTable$mortalityRate <- lifeTable$mortalityRate +
           (dis.lt.t[[d]]$bx - dis.lt.c[[d]]$bx)
       }
