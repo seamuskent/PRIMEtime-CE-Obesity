@@ -369,7 +369,7 @@ summary_table <- function(
 
 #' @rdname summary_table 
 #' @export
-summary_psa <- function(model.results = NULL, psa.out = NULL){
+summary_psa <- function(model.results = NULL, psa.out = NULL, costs.to.include = NULL){
 
   # Generate summary for deterministic results
   det.sum <- summary_table(
@@ -377,7 +377,8 @@ summary_psa <- function(model.results = NULL, psa.out = NULL){
     comparator = "trt1",
     active.intervention = "trt2",
     extended.summary = TRUE,
-    nicely.presented.results = FALSE)
+    nicely.presented.results = FALSE, 
+    costs.to.include = costs.to.include)
 
   # For each group calculate standard deviation of probabilistic means ----
 
