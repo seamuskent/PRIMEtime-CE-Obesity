@@ -369,7 +369,7 @@ summary_table <- function(
 
 #' @rdname summary_table 
 #' @export
-summary_psa <- function(model.results = NULL, psa.out = NULL, costs.to.include = NULL){
+summary_psa <- function(model.results = NULL, psa.out = NULL, costs.to.include = "disease-related nhs costs"){
 
   # Generate summary for deterministic results
   det.sum <- summary_table(
