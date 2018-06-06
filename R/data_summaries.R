@@ -254,7 +254,7 @@ summary_table <- function(
     if (!extended.summary){
 
       # variables to report (in order of presentation)
-      report.vars <- c("Lx", "Lux", "cost.total")
+      report.vars <- c("Lx.ud", "Lux.ud", "cost.total")
 
       # create output template
       out.template <- data.frame(matrix(NA, nrow = length(report.vars) + 1, ncol = 4))
@@ -285,7 +285,8 @@ summary_table <- function(
             }
 
             # calculate ICER
-            out[out$outcome == "ICER", 4] <- out[3, 4] / out[2, 4]
+            temp.data <- filter(results[["diff_21"]], sex == s, ageGrp == a, year == timeH)
+            out[out$outcome == "ICER", 4] <- temp.data$cost.total / temp.data$Lux
 
             # Present data presentation format
             if (nicely.presented.results){
@@ -319,13 +320,13 @@ summary_table <- function(
       }
 
       # variables to report (in order of presentation)
-      report.vars <- c("Lx", "Lux", cost.vars, outcomes[str_detect(outcomes, "ix")], "ICER")
+      report.vars <- c("Lx.ud", "Lux.ud", "Lx", "Lux", cost.vars, outcomes[str_detect(outcomes, "ix")], "ICER")
 
       # create output template
       out.template <- data.frame(matrix(NA, nrow = length(report.vars), ncol = 4))
       names(out.template) <- c("outcome", comparator, active.intervention, comparison)
       out.template$outcome <- report.vars
-      out.template$cat <- c(rep("health", 2), rep("cost", length(cost.vars)),
+      out.template$cat <- c(rep("health", 4), rep("cost", length(cost.vars)),
                             rep("ix", length(outcomes[str_detect(outcomes, "ix")])), "icer")
 
       # empty outcome list
@@ -352,8 +353,9 @@ summary_table <- function(
             }
 
             # calculate ICER
-            out[out$outcome == "ICER", 4] <- out[out$outcome == "cost.total", 4] / out[out$outcome == "Lux", 4]
-
+            temp.data <- filter(results[["diff_21"]], sex == s, ageGrp == a, year == timeH)
+            out[out$outcome == "ICER", 4] <- temp.data$cost.total / temp.data$Lux
+            
             # Present data presentation format
             if (nicely.presented.results){
               out.tidy <- out

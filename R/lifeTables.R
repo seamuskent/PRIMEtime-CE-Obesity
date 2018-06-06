@@ -443,6 +443,7 @@ Generate_outcomes <- function(lifeTab = NULL,
   tempNames <- c("Lx", "Lwx", "Lux")
   lifeTab <- lifeTab %>%
     group_by(sex) %>%
+    mutate(Lx.ud = Lx, Lwx.ud = Lwx, Lux.ud = Lux) %>%
     mutate_at(tempNames, funs(. / ((1 + dr.health/100)^(row_number()-1))))
 
   #Costs
@@ -454,7 +455,7 @@ Generate_outcomes <- function(lifeTab = NULL,
   # Calculate cumulative outcomes over time ----
 
   #define outcome variables
-  outcomes <- c("Lx", "Lux", "Lwx",
+  outcomes <- c("Lx", "Lux", "Lwx","Lx.ud", "Lux.ud", "Lwx.ud",
                 "nhs.cost.total", "nhs.cost.other","nhs.cost.disease",
                 "sc.cost.total", "sc.cost.other", "sc.cost.disease",
                 "trt.cost",
