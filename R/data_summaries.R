@@ -272,7 +272,6 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-#          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[-1]){
@@ -299,7 +298,6 @@ summary_table <- function(
 
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
-#          }
         }
       }
 
@@ -341,7 +339,6 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-#          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[c(-1,-5)]){
@@ -371,7 +368,6 @@ summary_table <- function(
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
 
-#          }
         }
       }
     }
