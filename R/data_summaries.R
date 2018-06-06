@@ -207,12 +207,28 @@ summary_table <- function(
       select(-age) %>%
       mutate(ageGrp = "All")
   }
+  
+  # Sum results both sexes by age
+  results4 <- list()
+  for (c in names(model.results)){
+    results4[[c]] <- model.results[[c]] %>%
+    left_join(., pop, by = c("sex", "ageGrp")) %>%
+    mutate_at(outcomes, funs(. * count)) %>%
+    mutate(ageGrp = as.character(cut(age, breaks = c(0, 20, 35, 50, 65, 80, Inf),
+      labels = c("0-19", "20-34", "35-49", "50-64", "65-79", "80+"),
+      right = FALSE))) %>%
+    group_by(ageGrp, year) %>%
+    summarise_if(is.numeric, sum) %>%
+    mutate_at(outcomes, funs(. / count)) %>%
+    select(-age) %>%
+    mutate(sex = "All")
+}
 
 
   # Combine agg results with those by age and sex
   results <- list()
   for (c in names(model.results)){
-    results[[c]] <- bind_rows(results2[[c]], results1[[c]], results3[[c]])
+    results[[c]] <- bind_rows(results2[[c]], results1[[c]], results3[[c]], results4[[c]])
   }
 
   # Define total costs ----
@@ -256,7 +272,7 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-          if (!(s == "All" & a != "All")){
+#          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[-1]){
@@ -283,7 +299,7 @@ summary_table <- function(
 
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
-          }
+#          }
         }
       }
 
@@ -325,7 +341,7 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-          if (!(s == "All" & a != "All")){
+#          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[c(-1,-5)]){
@@ -355,7 +371,7 @@ summary_table <- function(
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
 
-          }
+#          }
         }
       }
     }
