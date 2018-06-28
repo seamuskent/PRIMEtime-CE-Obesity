@@ -26,7 +26,7 @@ Produce_lifetable <- function(dataT = NULL,
   if (intervention){
     # If model mortality through diseases only
     if (!bmi.direct){
-      for (d in disease.names){
+      for (d in data.disease.names){
         lifeTable$mortalityRate <- lifeTable$mortalityRate +
           (dis.lt.t[[d]]$bx - dis.lt.c[[d]]$bx)
       }
@@ -443,6 +443,7 @@ Generate_outcomes <- function(lifeTab = NULL,
   tempNames <- c("Lx", "Lwx", "Lux")
   lifeTab <- lifeTab %>%
     group_by(sex) %>%
+    mutate(Lx.ud = Lx, Lwx.ud = Lwx, Lux.ud = Lux) %>%
     mutate_at(tempNames, funs(. / ((1 + dr.health/100)^(row_number()-1))))
 
   #Costs
@@ -454,7 +455,7 @@ Generate_outcomes <- function(lifeTab = NULL,
   # Calculate cumulative outcomes over time ----
 
   #define outcome variables
-  outcomes <- c("Lx", "Lux", "Lwx",
+  outcomes <- c("Lx", "Lux", "Lwx","Lx.ud", "Lux.ud", "Lwx.ud",
                 "nhs.cost.total", "nhs.cost.other","nhs.cost.disease",
                 "sc.cost.total", "sc.cost.other", "sc.cost.disease",
                 "trt.cost",
@@ -478,11 +479,12 @@ Generate_outcomes <- function(lifeTab = NULL,
     mutate(year = 0)
 
   #carry observations forward beyond age 100 to time-horizon.
-  if (age.start + timeH >= 100){
+  if (age.start + timeH > 100){ 
+    year.high <- max(lifeTab$year)
     locf <- lifeTab %>%
       group_by(sex) %>%
       filter(row_number() == n()) %>%
-      splitstackshape::expandRows(count = 2, count.is.col = FALSE) %>%
+      splitstackshape::expandRows(count = timeH - year.high, count.is.col = FALSE) %>%
       group_by(sex) %>%
       mutate(year = year + row_number())
     lifeTab <- bind_rows(lifeTab, locf)

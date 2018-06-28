@@ -116,8 +116,9 @@ summary_table <- function(
 
   # Whole UK Population (default)
   if (whole.uk.population){
+    primetime.data <- Manipulate_data(psa = FALSE, diab.sg = arguments$subgroup)
     pop <- Define_targeted_population(min.bmi = arguments$bmi.target.min,
-      max.bmi = arguments$bmi.target.max)
+      max.bmi = arguments$bmi.target.max, data.list = primetime.data)
     pop <- mutate(pop, count = count * propTarget) %>%
       select(sex, ageGrp, count)
   } else {
@@ -206,12 +207,28 @@ summary_table <- function(
       select(-age) %>%
       mutate(ageGrp = "All")
   }
+  
+  # Sum results both sexes by age
+  results4 <- list()
+  for (c in names(model.results)){
+    results4[[c]] <- model.results[[c]] %>%
+    left_join(., pop, by = c("sex", "ageGrp")) %>%
+    mutate_at(outcomes, funs(. * count)) %>%
+    mutate(ageGrp = as.character(cut(age, breaks = c(0, 20, 35, 50, 65, 80, Inf),
+      labels = c("0-19", "20-34", "35-49", "50-64", "65-79", "80+"),
+      right = FALSE))) %>%
+    group_by(ageGrp, year) %>%
+    summarise_if(is.numeric, sum) %>%
+    mutate_at(outcomes, funs(. / count)) %>%
+    select(-age) %>%
+    mutate(sex = "All")
+}
 
 
   # Combine agg results with those by age and sex
   results <- list()
   for (c in names(model.results)){
-    results[[c]] <- bind_rows(results2[[c]], results1[[c]], results3[[c]])
+    results[[c]] <- bind_rows(results2[[c]], results1[[c]], results3[[c]], results4[[c]])
   }
 
   # Define total costs ----
@@ -237,7 +254,7 @@ summary_table <- function(
     if (!extended.summary){
 
       # variables to report (in order of presentation)
-      report.vars <- c("Lx", "Lux", "cost.total")
+      report.vars <- c("Lx.ud", "Lux.ud", "cost.total")
 
       # create output template
       out.template <- data.frame(matrix(NA, nrow = length(report.vars) + 1, ncol = 4))
@@ -255,7 +272,6 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[-1]){
@@ -269,7 +285,8 @@ summary_table <- function(
             }
 
             # calculate ICER
-            out[out$outcome == "ICER", 4] <- out[3, 4] / out[2, 4]
+            temp.data <- filter(results[["diff_21"]], sex == s, ageGrp == a, year == timeH)
+            out[out$outcome == "ICER", 4] <- temp.data$cost.total / temp.data$Lux
 
             # Present data presentation format
             if (nicely.presented.results){
@@ -282,7 +299,6 @@ summary_table <- function(
 
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
-          }
         }
       }
 
@@ -304,13 +320,13 @@ summary_table <- function(
       }
 
       # variables to report (in order of presentation)
-      report.vars <- c("Lx", "Lux", cost.vars, outcomes[str_detect(outcomes, "ix")], "ICER")
+      report.vars <- c("Lx.ud", "Lux.ud", "Lx", "Lux", cost.vars, outcomes[str_detect(outcomes, "ix")], "ICER")
 
       # create output template
       out.template <- data.frame(matrix(NA, nrow = length(report.vars), ncol = 4))
       names(out.template) <- c("outcome", comparator, active.intervention, comparison)
       out.template$outcome <- report.vars
-      out.template$cat <- c(rep("health", 2), rep("cost", length(cost.vars)),
+      out.template$cat <- c(rep("health", 4), rep("cost", length(cost.vars)),
                             rep("ix", length(outcomes[str_detect(outcomes, "ix")])), "icer")
 
       # empty outcome list
@@ -324,7 +340,6 @@ summary_table <- function(
       for (s in sexL){
         for (a in ageL){
 
-          if (!(s == "All" & a != "All")){
             # extract data
             out <- out.template
             for (m in names(out)[c(-1,-5)]){
@@ -338,8 +353,9 @@ summary_table <- function(
             }
 
             # calculate ICER
-            out[out$outcome == "ICER", 4] <- out[out$outcome == "cost.total", 4] / out[out$outcome == "Lux", 4]
-
+            temp.data <- filter(results[["diff_21"]], sex == s, ageGrp == a, year == timeH)
+            out[out$outcome == "ICER", 4] <- temp.data$cost.total / temp.data$Lux
+            
             # Present data presentation format
             if (nicely.presented.results){
               out.tidy <- out
@@ -354,7 +370,6 @@ summary_table <- function(
             # store results in list
             out.list[[paste0("sex: ", s, "; age group: ", a)]] <- out
 
-          }
         }
       }
     }
@@ -367,7 +382,8 @@ summary_table <- function(
 
 
 #' @rdname summary_table 
-summary_psa <- function(model.results = NULL, psa.out = NULL){
+#' @export
+summary_psa <- function(model.results = NULL, psa.out = NULL, costs.to.include = "disease-related nhs costs"){
 
   # Generate summary for deterministic results
   det.sum <- summary_table(
@@ -375,7 +391,8 @@ summary_psa <- function(model.results = NULL, psa.out = NULL){
     comparator = "trt1",
     active.intervention = "trt2",
     extended.summary = TRUE,
-    nicely.presented.results = FALSE)
+    nicely.presented.results = FALSE, 
+    costs.to.include = costs.to.include)
 
   # For each group calculate standard deviation of probabilistic means ----
 
