@@ -9,7 +9,7 @@
 #' primetime_psa(n = 1000, model = primetime.results)
 #' @export
 
-primetime_psa <- function(n = 1000, model.results = NULL, costs.to.include = "disease-related nhs costs"){
+primetime_psa <- function(n = 1000, model.results = NULL, costs.to.include = "disease-related nhs costs", all.years = FALSE){
 
   # Extract arguments from model
   inputs <- model.results$arguments
@@ -28,15 +28,28 @@ primetime_psa <- function(n = 1000, model.results = NULL, costs.to.include = "di
       tempModel <- rlang::invoke(primetime, inputs)
 
       # Detailed summary
-      tempSum <- summary_table(
-        model.results = tempModel,
-        comparator = "trt1",
-        active.intervention = "trt2",
-        nicely.presented.results = FALSE,
-        extended.summary = TRUE,
-        costs.to.include = costs.to.include
-      )
-
+      if (all.years){
+        tempSum <- list()
+        for (y in 1:inputs$time.horizon){
+          tempSum[[y]] <- summary_table(
+            model.results = tempModel,
+            comparator = "trt1",
+            active.intervention = "trt2",
+            nicely.presented.results = FALSE,
+            extended.summary = TRUE,
+            costs.to.include = costs.to.include,
+            timeH = y)
+        }
+      } else {
+        tempSum <- summary_table(
+          model.results = tempModel,
+          comparator = "trt1",
+          active.intervention = "trt2",
+          nicely.presented.results = FALSE,
+          extended.summary = TRUE,
+          costs.to.include = costs.to.include)
+      }
+      
       # Define output to save
       tempSum
 
