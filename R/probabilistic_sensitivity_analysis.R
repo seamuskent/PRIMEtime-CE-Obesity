@@ -30,7 +30,7 @@ primetime_psa <- function(n = 1000, model.results = NULL, costs.to.include = "di
       # Detailed summary
       if (all.years){
         tempSum <- list()
-        for (y in 1:inputs$time.horizon){
+        for (y in c(1, seq(5, inputs$time.horizon, 5))){
           tempSum[[y]] <- summary_table(
             model.results = tempModel,
             comparator = "trt1",
